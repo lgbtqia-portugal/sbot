@@ -6,7 +6,6 @@ from pprint import pprint
 import requests
 
 import config
-import poe
 
 class MockCmd:
 	def __init__(self):

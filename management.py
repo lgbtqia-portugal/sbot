@@ -50,7 +50,7 @@ def cleanup(cmd):
 		int(start)
 		int(end)
 	except ValueError:
-		cmd.reply('usage: !cleanup 000 111')
+		cmd.reply(f'usage: {config.bot.prefix_char}cleanup 000 111')
 		return
 	messages = cmd.bot.iter_messages(cmd.channel_id, str(int(start) - 1), end)
 	message_ids = [msg['id'] for msg in messages]
@@ -65,7 +65,7 @@ def mass_ban(cmd):
 	try:
 		start, end = cmd.args.split()
 	except ValueError:
-		cmd.reply('usage: `!massban start_msg_id end_msg_id`')
+		cmd.reply(f'usage: `{config.bot.prefix_char}massban start_msg_id end_msg_id`')
 		return
 	programming_guild = '181866934353133570'
 	join_channel = '209074609893408768'

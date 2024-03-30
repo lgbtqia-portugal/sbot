@@ -17,10 +17,10 @@ import command
 import config
 
 rs = requests.Session()
-rs.headers['User-Agent'] = 'sbot (github.com/raylu/sbot)'
+rs.headers['User-Agent'] = 'sbot (github.com/lgbtqia-portugal/sbot)'
 
 def help(cmd):
-	if cmd.args: # only reply on "!help"
+	if cmd.args: # only reply on "{config.bot.prefix_char}help"
 		return
 	commands = set(cmd.bot.commands.keys())
 	guild_id = cmd.bot.channels[cmd.channel_id]
@@ -28,7 +28,7 @@ def help(cmd):
 		for name, func in cmd.bot.commands.items():
 			if func.__module__ == 'management':
 				commands.remove(name)
-	reply = 'commands: `!%s`' % '`, `!'.join(commands)
+	reply = 'commands: ' + ', '.join(config.bot.prefix_char + cmd for cmd in commands)
 	cmd.reply(reply)
 
 def botinfo(cmd):
@@ -36,7 +36,7 @@ def botinfo(cmd):
 		'fields': [
 			{
 				'name': 'source',
-				'value': 'https://github.com/raylu/sbot',
+				'value': 'https://github.com/lgbtqia-portugal/sbot',
 			},
 			{
 				'name': 'python',
@@ -126,7 +126,7 @@ def roll(cmd):
 		details = split[2].split('=', 1)[1].strip()
 		details = details.replace(' +', ' + ').replace(' +  ', ' + ')
 		result = split[1].split('=', 1)[1]
-		cmd.reply('%s %s' % (result, details))
+		cmd.reply(f'**Total:** `{result}`    **Rolls:** `{details}`')
 	except IndexError:
 		cmd.reply('%s: error rolling' % cmd.sender['username'])
 
@@ -139,6 +139,8 @@ tzinfos = {
 	'CDT': dateutil.tz.gettz('America/Chicago'),
 	'EST': dateutil.tz.gettz('America/New_York'),
 	'EDT': dateutil.tz.gettz('America/New_York'),
+	'WET': dateutil.tz.gettz('Europe/Lisbon'),
+	'WEST': dateutil.tz.gettz('Europe/Lisbon'),
 }
 def time(cmd):
 	if cmd.args:
@@ -178,14 +180,6 @@ def weather(cmd):
 				{'description': '```%s```' % traceback.format_exc()[-500:]})
 		return
 	cmd.reply(None, files={'weather.png': response.content})
-
-def ohno(cmd):
-	url = 'https://www.raylu.net/f/ohno/ohno%03d.png' % random.randint(1, 294)
-	cmd.reply('', {'image': {'url': url}})
-
-def ohyes(cmd):
-	url = 'https://www.raylu.net/f/ohyes/ohyes%02d.gif' % random.randint(1, 19)
-	cmd.reply('', {'image': {'url': url}})
 
 def ddd(cmd):
 	guild_id = cmd.d['guild_id']

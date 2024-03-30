@@ -16,7 +16,7 @@ def main():
 
 	rs = requests.Session()
 	rs.headers['Authorization'] = 'Bot ' + config.bot.token
-	rs.headers['User-Agent'] = 'DiscordBot (https://github.com/raylu/sbot 0.0)'
+	rs.headers['User-Agent'] = 'DiscordBot (https://github.com/lgbtqia-portugal/sbot 0.0)'
 
 	if args.guild_id is None:
 		url = 'https://discord.com/api/v8/applications/%s/commands' % config.bot.app_id

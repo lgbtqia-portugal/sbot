@@ -1,8 +1,12 @@
 import yaml
 
 import command
+import config
 
-can_usage = 'usage: `!can list`, `!can set cow moo`, `!can cow`, `!can del cow`'
+can_usage = f'usage: `{config.bot.prefix_char}can list`, \
+	`{config.bot.prefix_char}can set cow moo`, \
+	`{config.bot.prefix_char}can cow`, \
+	`{config.bot.prefix_char}can del cow`'
 
 @command.command('canned responses', {
 	'type': command.OPTION_TYPE.SUB_COMMAND,
@@ -118,7 +122,7 @@ def _can_set(cmd, name, text):
 	cans = _get_cans()
 	cans[name] = text
 	_set_cans(cans)
-	cmd.reply('set canned reply; retrieve via `!can %s`' % name)
+	cmd.reply(f'set canned reply; retrieve via `{config.bot.prefix_char}can {name}`')
 
 def _can_del(cmd, name):
 	if cmd.channel_id != '455385402241712128':
@@ -127,7 +131,7 @@ def _can_del(cmd, name):
 	try:
 		del cans[name]
 	except KeyError:
-		cmd.reply('no can found with name `%s`' % name)
+		cmd.reply(f'no can found with name `{name}`')
 		return
 	_set_cans(cans)
 	cmd.reply('deleted canned reply ' + name)
