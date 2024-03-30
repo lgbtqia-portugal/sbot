@@ -6,11 +6,11 @@ from bot import Bot
 from commands import commands
 
 def main():
-	locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
+    locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
 
-	bot = Bot(commands)
-	bot.connect()
-	bot.run_forever()
+    bot = Bot(commands)
+    bot.connect()
+    bot.run_forever()
 
 if __name__ == '__main__':
-	main()
+    main()
