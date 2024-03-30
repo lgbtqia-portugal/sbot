@@ -27,7 +27,7 @@ class Bot:
         self.ws = None
         self.rs = requests.Session()
         self.rs.headers['Authorization'] = 'Bot ' + config.bot.token
-        self.rs.headers['User-Agent'] = 'DiscordBot (https://github.com/raylu/sbot 0.0)'
+        self.rs.headers['User-Agent'] = 'DiscordBot (https://github.com/lgbtqia-portugal/sbot 0.0)'
         self.heartbeat_thread = None
         self.timer_thread = None
         self.timer_condvar = threading.Condition()
@@ -45,8 +45,9 @@ class Bot:
             'READY': self.handle_ready,
             'MESSAGE_CREATE': self.handle_message_create,
             'INTERACTION_CREATE': self.handle_interaction_create,
-            'MESSAGE_REACTION_ADD': self.handle_reaction_add,
-            'MESSAGE_REACTION_REMOVE': self.handle_reaction_remove,
+            # 'MESSAGE_REACTION_ADD': self.handle_reaction_add,
+            # 'MESSAGE_REACTION_REMOVE': self.handle_reaction_remove,
+            'THREAD_CREATE': self.handle_forum_thread,
             'GUILD_CREATE': self.handle_guild_create,
             'GUILD_ROLE_CREATE': self.handle_guild_role_create,
             'GUILD_ROLE_UPDATE': self.handle_guild_role_update,
@@ -268,58 +269,37 @@ class Bot:
                     # continue replacing all the commands in the reloaded file; do not break/return
         return handler
 
+    def handle_forum_thread(self, d):
+        if config.bot.forum_react is None:
+            return
+
+        if d['parent_id'] not in config.bot.forum_react.keys():
+            return
+        time.sleep(1)
+        for emoji in config.bot.forum_react[d['parent_id']]:
+            self.react(d['id'], d['id'], emoji)
+            time.sleep(0.5)
+
     def handle_reaction_add(self, d):
-        if config.bot.twitter_post is None:
+        if config.bot.forum_react is None:
             return
 
-        if d['channel_id'] != config.bot.twitter_post['channel'] or \
-                d['emoji']['name'] != 'shrfood_twitter' or d['user_id'] == self.user_id:
-            return
-
-        if d['message_id'] in config.state.twitter_queue:
+        if d['channel_id'] not in config.bot.forum_react.keys():
             return
 
         message = self.get_message(d['channel_id'], d['message_id'])
-        attachments = message.get('attachments')
-        if not attachments:
-            self.react(d['channel_id'], d['message_id'], '🙈')
-            return
-
-        for attachment in attachments[:4]:
-            media_type, _ = mimetypes.guess_type(attachment['filename'])
-            if media_type.startswith('video/'):
-                if len(attachments) != 1:
-                    self.react(d['channel_id'], d['message_id'], '🧐')
-                    return
-                if attachment['size'] > 5000000:
-                    self.react(d['channel_id'], d['message_id'], '😓')
-                    return
-
-        config.state.twitter_queue.append(d['message_id'])
-        config.state.save()
+        print(message)
 
         self.react(d['channel_id'], d['message_id'], '✅')
-        with self.twitter_post_condvar:
-            self.twitter_post_condvar.notify()
 
     def handle_reaction_remove(self, d):
-        if config.bot.twitter_post is None:
+        if config.bot.forum_react is None:
             return
 
-        if d['channel_id'] != config.bot.twitter_post['channel'] or \
-                d['emoji']['name'] != 'shrfood_twitter':
+        if d['channel_id'] not in config.bot.forum_react.keys():
             return
 
-        emoji = '%s:%s' % (d['emoji']['name'], d['emoji']['id'])
-        reactions = self.get_reactions(d['channel_id'], d['message_id'], emoji)
-        if len(reactions) == 0: # no more shrfood_twitter emoji
-            try:
-                config.state.twitter_queue.remove(d['message_id'])
-            except ValueError:
-                return
-            config.state.save()
-
-            self.remove_reaction(d['channel_id'], d['message_id'], '✅')
+        self.remove_reaction(d['channel_id'], d['message_id'], '✅')
 
     def handle_guild_create(self, d):
         log.write('in guild %s (%d members)' % (d['name'], d['member_count']))
