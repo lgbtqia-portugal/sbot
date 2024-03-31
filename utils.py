@@ -1,3 +1,4 @@
+from time import sleep
 import datetime
 import hashlib
 import random
@@ -219,3 +220,23 @@ def ddd(cmd):
         },
     }
     cmd.reply('', embed)
+
+
+def listbots(cmd):
+    rslimit = 1000
+    members = cmd.bot.get(f"/guilds/{cmd.d['guild_id']}/members", \
+                {'limit': rslimit})
+    rslen = len(members)
+
+    while rslen == rslimit:
+        rs = cmd.bot.get(f"/guilds/{cmd.d['guild_id']}/members", \
+                {'limit': rslimit, 'after': members[-1]['user']['id']})
+        rslen = len(rs)
+        members += rs
+
+    bots = []
+    for member in members:
+        if 'bot' in member['user'] and member['user']['bot']:
+            bots.append(f"`{member['user']['id']:<20}`   {member['user']['username']}")
+
+    cmd.reply(f"**{len(bots)} bots found**\n" + "\n".join(bots))

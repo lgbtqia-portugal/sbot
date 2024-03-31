@@ -16,6 +16,8 @@ commands = {
 
     'timer': timer.timer,
 
+    'listbots': utils.listbots,
+
     #'join': management.join,
     #'leave': management.leave,
     #'roles': management.list_roles,

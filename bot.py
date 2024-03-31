@@ -193,8 +193,8 @@ class Bot:
             'token': config.bot.token,
             'intents': INTENT.GUILDS | INTENT.GUILD_MESSAGES | INTENT.GUILD_MESSAGE_REACTIONS | INTENT.DIRECT_MESSAGES,
             'properties': {
-                '$browser': 'github.com/raylu/sbot',
-                '$device': 'github.com/raylu/sbot',
+                '$browser': 'github.com/lgbtqia-portugal/sbot',
+                '$device': 'github.com/lgbtqia-portugal/sbot',
             },
             'compress': True,
             'large_threshold': 50,
