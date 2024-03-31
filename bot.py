@@ -232,6 +232,12 @@ class Bot:
             if len(lines) == 2:
                 arg += '\n' + lines[1]
             cmd = CommandEvent(d, arg, self)
+            if cmd.d['member']['nick']:
+                cmd.sender['pretty_name'] = cmd.d['member']['nick']
+            elif cmd.sender['global_name']:
+                cmd.sender['pretty_name'] = cmd.sender['global_name']
+            else:
+                cmd.sender['pretty_name'] = cmd.sender['username']
             handler(cmd)
 
     def handle_interaction_create(self, d):

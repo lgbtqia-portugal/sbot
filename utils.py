@@ -129,7 +129,7 @@ def roll(cmd):
         result = split[1].split('=', 1)[1]
         cmd.reply(f'**Total:** `{result}`    **Rolls:** `{details}`')
     except IndexError:
-        cmd.reply('%s: error rolling' % cmd.sender['username'])
+        cmd.reply('%s: error rolling' % cmd.sender['pretty_name'])
 
 tzinfos = {
     'PST': dateutil.tz.gettz('America/Los_Angeles'),
@@ -177,7 +177,7 @@ def weather(cmd):
         response = rs.get(url)
         response.raise_for_status()
     except Exception:
-        cmd.reply('%s: error getting weather at %s' % (cmd.sender['username'], url),
+        cmd.reply('%s: error getting weather at %s' % (cmd.sender['pretty_name'], url),
                 {'description': '```%s```' % traceback.format_exc()[-500:]})
         return
     cmd.reply(None, files={'weather.png': response.content})
