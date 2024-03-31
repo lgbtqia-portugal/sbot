@@ -23,7 +23,7 @@ rs.headers['User-Agent'] = 'sbot (github.com/lgbtqia-portugal/sbot)'
 def help(cmd):
     if cmd.args: # only reply on "{config.bot.prefix_char}help"
         return
-    commands = set(cmd.bot.commands.keys())
+    commands = cmd.bot.commands.keys()
     guild_id = cmd.bot.channels[cmd.channel_id]
     if config.bot.roles is None or guild_id != config.bot.roles['server']:
         for name, func in cmd.bot.commands.items():
@@ -223,6 +223,8 @@ def ddd(cmd):
 
 
 def listbots(cmd):
+    if not any(r in cmd.d['member']['roles'] for r in config.bot.priv_roles):
+        return
     rslimit = 1000
     members = cmd.bot.get(f"/guilds/{cmd.d['guild_id']}/members", \
                 {'limit': rslimit})

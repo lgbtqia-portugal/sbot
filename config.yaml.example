@@ -4,6 +4,18 @@ err_channel: null
 prefix_char: '.'
 roles: # set this to null to disable
     server: '' # server id
+priv_roles:
+    - '779773704368160778' # gods
+    - '789406295136272384' # mods
+forum_react:
+    '1222683927786029197':
+        - '⏳'
+        - '👍'
+        - '👎'
+    '1222685062663901227':
+        - '⏳'
+        - '👍'
+        - '👎'
 autoreload: false
 debug: false
 

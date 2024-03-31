@@ -25,5 +25,5 @@ commands = {
     #'cleanup': management.cleanup,
     #'massban': management.mass_ban,
 
-    'can': canned.canned,
+    #'can': canned.canned,
 }
