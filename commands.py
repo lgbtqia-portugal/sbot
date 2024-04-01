@@ -15,8 +15,9 @@ commands = {
     'time': utils.time,
     'weather': utils.weather, # borked
 
-    'listbots': utils.listbots,
+    # management commands
 
+    'listbots': utils.listbots,
     #'join': management.join,
     #'leave': management.leave,
     #'roles': management.list_roles,
