@@ -139,6 +139,8 @@ def _can_del(cmd, name):
     cmd.reply('deleted canned reply ' + name)
 
 def _can_get(cmd, name):
+    if not any(r in cmd.d['member']['roles'] for r in config.bot.priv_roles):
+        return
     try:
         cmd.reply(_get_cans()[name])
     except KeyError:
