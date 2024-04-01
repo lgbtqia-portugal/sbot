@@ -16,7 +16,7 @@ commands = {
     'weather': utils.weather,
 
     # management commands
-    #'can': canned.canned,
+    'can': canned.canned,
     'listbots': utils.listbots,
     #'join': management.join,
     #'leave': management.leave,

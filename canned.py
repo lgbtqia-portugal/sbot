@@ -103,6 +103,8 @@ def canned(cmd):
             _can_get(cmd, subcmd)
 
 def _can_list(cmd):
+    if not any(r in cmd.d['member']['roles'] for r in config.bot.priv_roles):
+        return
     names = _get_cans().keys()
     if names:
         embed = {'description': '\n'.join(names)}
@@ -111,7 +113,7 @@ def _can_list(cmd):
         cmd.reply('no canned responses')
 
 def _can_set(cmd, name, text):
-    if cmd.channel_id != '455385402241712128':
+    if not any(r in cmd.d['member']['roles'] for r in config.bot.priv_roles):
         return
     if name in ['list', 'set', 'del']:
         cmd.reply(name + ' is a reserved word')
@@ -125,7 +127,7 @@ def _can_set(cmd, name, text):
     cmd.reply(f'set canned reply; retrieve via `{config.bot.prefix_char}can {name}`')
 
 def _can_del(cmd, name):
-    if cmd.channel_id != '455385402241712128':
+    if not any(r in cmd.d['member']['roles'] for r in config.bot.priv_roles):
         return
     cans = _get_cans()
     try:
