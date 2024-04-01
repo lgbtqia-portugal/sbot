@@ -13,10 +13,10 @@ commands = {
     'units': utils.units,
     'unicode': utils.unicode,
     'time': utils.time,
-    'weather': utils.weather, # borked
+    'weather': utils.weather,
 
     # management commands
-
+    #'can': canned.canned,
     'listbots': utils.listbots,
     #'join': management.join,
     #'leave': management.leave,
@@ -25,5 +25,5 @@ commands = {
     #'cleanup': management.cleanup,
     #'massban': management.mass_ban,
 
-    #'can': canned.canned,
+
 }

@@ -123,11 +123,7 @@ class Bot:
             wait_time = int(response.headers['X-RateLimit-Reset-After'])
             log.write('waiting %d for rate limit' % wait_time)
             time.sleep(wait_time)
-        # if response.status_code == 429:
-        #     wait_time = float(response.json()['retry_after'])
-        #     log.write('waiting %d for rate limit' % wait_time)
-        #     time.sleep(wait_time)
-        elif response.status_code >= 400:
+        if response.status_code >= 400:
             log.write('response: %r' % response.content)
         response.raise_for_status()
         if response.status_code != 204: # No Content
@@ -348,6 +344,9 @@ class Bot:
             time.sleep(interval_s)
             self.send(OP.HEARTBEAT, self.seq)
 
+
+    def timer_loop(self):
+        while True:
             wakeups = []
             now = datetime.datetime.now(datetime.timezone.utc)
             hour_from_now = now + datetime.timedelta(hours=1)

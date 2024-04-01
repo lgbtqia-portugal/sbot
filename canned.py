@@ -55,7 +55,6 @@ can_usage = f'usage: `{config.bot.prefix_char}can list`, \
         },
     ],
 })
-
 def canned(cmd):
     options = getattr(cmd, 'options', None)
     if options is not None:
