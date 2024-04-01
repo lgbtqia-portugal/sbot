@@ -119,11 +119,14 @@ class Bot:
         if config.bot.debug:
             print('=>', path, data)
         response = self.rs.request(method, 'https://discord.com/api' + path, files=files, json=data)
-
-        if response.status_code == 429:
-            wait_time = float(response.json()['retry_after'])
+        if response.headers.get('X-RateLimit-Remaining') == '0':
+            wait_time = int(response.headers['X-RateLimit-Reset-After'])
             log.write('waiting %d for rate limit' % wait_time)
             time.sleep(wait_time)
+        # if response.status_code == 429:
+        #     wait_time = float(response.json()['retry_after'])
+        #     log.write('waiting %d for rate limit' % wait_time)
+        #     time.sleep(wait_time)
         elif response.status_code >= 400:
             log.write('response: %r' % response.content)
         response.raise_for_status()
@@ -178,10 +181,7 @@ class Bot:
     def react(self, channel_id, message_id, emoji):
         path = '/channels/%s/messages/%s/reactions/%s/@me' % (
                 channel_id, message_id, urllib.parse.quote(emoji))
-        try:
-            self.post(path, None, method='PUT')
-        except requests.exceptions.HTTPError:
-            self.post(path, None, method='PUT')
+        self.post(path, None, method='PUT')
 
 
     def remove_reaction(self, channel_id, message_id, emoji):
