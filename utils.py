@@ -160,7 +160,7 @@ def time(cmd):
 def weather(cmd):
     if not cmd.args:
         return
-    flags = "format=**%l:**+%c++🌡`%t(%f)`+💦`%h`+💨`%w`+**☔(3h):**+`%p`+**UVI:**+`%u`\n**Time:**`+%T`+**Sunrise:**+`%S`+**Sunset:**+`%s`+**Moon:**+%m"
+    flags = "format=**%l:**+%c+++🌡+`%t(%f)`++💦+`%h`++💨+`%w`++**☔(3h):**+`%p`++**UVI:**+`%u`\n**Time:**+`%T`++**Sunrise:**+`%S`++**Sunset:**+`%s`++**Moon:**+%m"
     location = cmd.args.title()
 
     url = f'https://wttr.in/{urllib.parse.quote_plus(location)}?{flags}'
