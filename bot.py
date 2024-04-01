@@ -119,7 +119,12 @@ class Bot:
         if config.bot.debug:
             print('=>', path, data)
         response = self.rs.request(method, 'https://discord.com/api' + path, files=files, json=data)
-        if response.status_code >= 400:
+
+        if response.status_code == 429:
+            wait_time = float(response.json()['retry_after'])
+            log.write('waiting %d for rate limit' % wait_time)
+            time.sleep(wait_time)
+        elif response.status_code >= 400:
             log.write('response: %r' % response.content)
         response.raise_for_status()
         if response.status_code != 204: # No Content
@@ -173,7 +178,11 @@ class Bot:
     def react(self, channel_id, message_id, emoji):
         path = '/channels/%s/messages/%s/reactions/%s/@me' % (
                 channel_id, message_id, urllib.parse.quote(emoji))
-        self.post(path, None, method='PUT')
+        try:
+            self.post(path, None, method='PUT')
+        except requests.exceptions.HTTPError:
+            self.post(path, None, method='PUT')
+
 
     def remove_reaction(self, channel_id, message_id, emoji):
         path = '/channels/%s/messages/%s/reactions/%s/@me' % (
@@ -232,12 +241,9 @@ class Bot:
             if len(lines) == 2:
                 arg += '\n' + lines[1]
             cmd = CommandEvent(d, arg, self)
-            if cmd.d['member']['nick']:
-                cmd.sender['pretty_name'] = cmd.d['member']['nick']
-            elif cmd.sender['global_name']:
-                cmd.sender['pretty_name'] = cmd.sender['global_name']
-            else:
-                cmd.sender['pretty_name'] = cmd.sender['username']
+            cmd.sender['pretty_name'] = cmd.d['member']['nick'] or \
+                                        cmd.sender['global_name'] or \
+                                        cmd.sender['username']
             handler(cmd)
 
     def handle_interaction_create(self, d):
@@ -284,7 +290,7 @@ class Bot:
         time.sleep(1)
         for emoji in config.bot.forum_react[d['parent_id']]:
             self.react(d['id'], d['id'], emoji)
-            time.sleep(0.5)
+
 
     def handle_reaction_add(self, d):
         if config.bot.forum_react is None:
@@ -342,8 +348,6 @@ class Bot:
             time.sleep(interval_s)
             self.send(OP.HEARTBEAT, self.seq)
 
-    def timer_loop(self):
-        while True:
             wakeups = []
             now = datetime.datetime.now(datetime.timezone.utc)
             hour_from_now = now + datetime.timedelta(hours=1)
