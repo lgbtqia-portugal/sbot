@@ -18,6 +18,7 @@ commands = {
     # management commands
     'can': canned.canned,
     'listbots': utils.listbots,
+    'verify': management.verify,
 
     #'join': management.join,
     #'leave': management.leave,

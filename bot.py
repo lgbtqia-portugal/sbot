@@ -52,6 +52,7 @@ class Bot:
             'GUILD_ROLE_CREATE': self.handle_guild_role_create,
             'GUILD_ROLE_UPDATE': self.handle_guild_role_update,
             'GUILD_ROLE_DELETE': self.handle_guild_role_delete,
+            'GUILD_AUDIT_LOG_ENTRY_CREATE': self.handle_audit_log_entry_create,
         }
         self.commands = commands
 
@@ -196,7 +197,7 @@ class Bot:
         self.heartbeat_thread = _thread.start_new_thread(self.heartbeat_loop, (d['heartbeat_interval'],))
         self.send(OP.IDENTIFY, {
             'token': config.bot.token,
-            'intents': INTENT.GUILDS | INTENT.GUILD_MESSAGES | INTENT.GUILD_MESSAGE_REACTIONS | INTENT.DIRECT_MESSAGES,
+            'intents': INTENT.GUILDS | INTENT.GUILD_MESSAGES | INTENT.GUILD_MESSAGE_REACTIONS | INTENT.DIRECT_MESSAGES | INTENT.GUILD_MODERATION,
             'properties': {
                 '$browser': 'github.com/lgbtqia-portugal/sbot',
                 '$device': 'github.com/lgbtqia-portugal/sbot',
@@ -260,6 +261,18 @@ class Bot:
             except Exception:
                 cmd.reply('an error occurred')
                 raise
+
+    def handle_audit_log_entry_create(self, d):
+        if d['action_type'] == 25:
+            self.handle_member_role_update(d)
+        return
+
+    def handle_member_role_update(self, d):
+        if d['changes'][0]['key'] == "$add" and d['changes'][0]['new_value'][0]['id'] == '1224303986933370941':
+            self.send_message(config.bot.babies_greet['greet_channel'], \
+                f'<@{d["target_id"]}> bem-vinde ao servidor <:emoji:{config.bot.babies_greet["greet_emoji"]}> passa pelos <#{config.bot.babies_greet["roles_channel"]}> por favor :>')
+        return
+
 
     def _autoreload(self, command_name, handler):
         module_name = handler.__module__
@@ -448,7 +461,7 @@ class OP:
 class INTENT:
     GUILDS                    = 1 << 0
     GUILD_MEMBERS             = 1 << 1
-    GUILD_BANS                = 1 << 2
+    GUILD_MODERATION          = 1 << 2
     GUILD_EMOJIS_AND_STICKERS = 1 << 3
     GUILD_INTEGRATIONS        = 1 << 4
     GUILD_WEBHOOKS            = 1 << 5

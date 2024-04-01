@@ -16,6 +16,13 @@ forum_react:
         - '⏳'
         - '👍'
         - '👎'
+babies_greet:
+    greet_channel: '779767020580503568' # geral
+    greet_emoji: '1224450360257544333' # blobhajpride
+    roles_channel: '779774827237343233' # roles
+verify:
+    channel: '874416104653598741' # apresentacoes
+    role: '781266952828092474' # beans
 autoreload: false
 debug: false
 

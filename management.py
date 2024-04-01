@@ -59,6 +59,37 @@ def cleanup(cmd):
     else:
         cmd.reply('no messages in range')
 
+def verify(cmd):
+    if not any(r in cmd.d['member']['roles'] for r in config.bot.priv_roles):
+        return
+    if not cmd.args:
+        return
+    args = cmd.args.split()
+
+    rslimit = 100
+    messages = cmd.bot.get(f"/channels/{config.bot.verify['channel']}/messages", \
+                {'limit': rslimit})
+    rslen = len(messages)
+    while rslen == rslimit:
+        rs = cmd.bot.get(f"/channels/{config.bot.verify['channel']}/messages", \
+                {'limit': rslimit, 'before': messages[-1]['id']})
+        rslen = len(rs)
+        messages += rs
+
+    msg_del = []
+    verified_users = []
+    for msg in messages:
+        if args[0] == "all" or msg['author']['id'] in args:
+            if msg['author']['id'] not in verified_users:
+                cmd.bot.post(f"/guilds/{cmd.d['guild_id']}/members/{msg['author']['id']}/roles/{config.bot.verify['role']}", \
+                    None, method='PUT')
+                verified_users.append(msg['author']['id'])
+            msg_del.append(msg['id'])
+
+    cmd.bot.delete_messages(config.bot.verify['channel'], msg_del)
+
+
+
 def mass_ban(cmd):
     if cmd.channel_id != '473980984874762242': # staff-chat
         return

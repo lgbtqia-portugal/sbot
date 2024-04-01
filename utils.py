@@ -23,12 +23,12 @@ rs.headers['User-Agent'] = 'sbot (github.com/lgbtqia-portugal/sbot)'
 def help(cmd):
     if cmd.args: # only reply on "{config.bot.prefix_char}help"
         return
-    commands = cmd.bot.commands.keys()
+    commands = list(cmd.bot.commands.keys())
     guild_id = cmd.bot.channels[cmd.channel_id]
     if config.bot.roles is None or guild_id != config.bot.roles['server']:
         for name, func in cmd.bot.commands.items():
             if func.__module__ == 'management':
-                del commands[name]
+                commands.remove(name)
     reply = 'commands: ' + ', '.join(config.bot.prefix_char + cmd for cmd in commands)
     cmd.reply(reply)
 
@@ -160,18 +160,22 @@ def time(cmd):
 def weather(cmd):
     if not cmd.args:
         return
-    flags = "format=**%l:**+%c+++🌡+`%t(%f)`++💦+`%h`++💨+`%w`++**☔(3h):**+`%p`++**UVI:**+`%u`\n**Time:**+`%T`++**Sunrise:**+`%S`++**Sunset:**+`%s`++**Moon:**+%m"
-    location = cmd.args.title()
-
-    url = f'https://wttr.in/{urllib.parse.quote_plus(location)}?{flags}'
+    flags = "format=**%l:**+%c+++🌡+`%t(%f)`++💦+`%h`++💨+`%w`++**☔**+`%p/3h`++**UVI:**+`%u`\
+                \n**Time:**+`%T`++**Sunrise:**+`%S`++**Sunset:**+`%s`++**Moon:**+%m"
+    location = cmd.args
+    url = f'https://wttr.in/{urllib.parse.quote_plus(location.title())}?{flags}'
     try:
         response = rs.get(url)
         response.raise_for_status()
     except Exception:
-        cmd.reply('%s: error getting weather at %s' % (cmd.sender['pretty_name'], url),
-                {'description': '```%s```' % traceback.format_exc()[-500:]})
+        if response.status_code == 503:
+            cmd.reply(f'{cmd.sender["pretty_name"]}: service unavailable for {location}')
+        elif response.status_code == 404:
+            cmd.reply(f'{cmd.sender["pretty_name"]}: {location} not found')
+        else:
+            cmd.reply(f'{cmd.sender["pretty_name"]}: error getting weather at {url}',
+                    {'description': f'```{traceback.format_exc()[-500:]}```'})
         return
-
     cmd.reply(response.content.decode())
 
 def ddd(cmd):
