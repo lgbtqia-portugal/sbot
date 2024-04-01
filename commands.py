@@ -8,13 +8,12 @@ commands = {
     'botinfo': utils.botinfo,
     'ping': utils.ping,
     'calc': utils.calc,
-    'unicode': utils.unicode,
-    'units': utils.units,
     'roll': utils.roll,
-    'time': utils.time,
-    'weather': utils.weather,
-
     'timer': timer.timer,
+    'units': utils.units,
+    'unicode': utils.unicode,
+    'time': utils.time,
+    'weather': utils.weather, # borked
 
     'listbots': utils.listbots,
 
