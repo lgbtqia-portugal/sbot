@@ -11,3 +11,16 @@ cp config.yaml{.example,}
 $EDITOR config.yaml
 ./sbot
 ```
+
+## Docker
+
+Build:
+```shell
+docker build -t lgbtqia-portugal/sbot:$(git rev-parse --short HEAD) .
+docker tag lgbtqia-portugal/sbot:$(git rev-parse --short HEAD) lgbtqia-portugal/sbot:latest
+```
+
+Run:
+```shell
+docker run -d --name sbot -v /home/lbatalha/src/sbot:/opt/sbot/ --restart=always -m 1G lgbtqia-portugal/sbot:latest
+```
