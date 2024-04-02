@@ -1,6 +1,13 @@
 app_id: null
 token: null
 err_channel: null
+user_audit_log:
+    file: 'user_audit.log'
+    channel: '1224496998892175440'
+    events:
+        - MESSAGE_CREATE
+        - MESSAGE_UPDATE
+        - MESSAGE_DELETE
 prefix_char: '.'
 roles: # set this to null to disable
     server: '' # server id

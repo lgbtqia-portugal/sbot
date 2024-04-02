@@ -3,3 +3,4 @@ PyYAML
 requests
 requests_oauthlib
 websocket-client
+jsonlines

@@ -3,6 +3,7 @@ import copy
 import datetime
 import importlib
 import json
+import logging
 import mimetypes
 import os
 import re
@@ -20,6 +21,10 @@ import websocket
 import command
 import config
 import log
+
+if config.bot.user_audit_log:
+    import user_audit_log
+
 from timer import readable_rel
 
 class Bot:
@@ -44,6 +49,8 @@ class Bot:
         self.events = {
             'READY': self.handle_ready,
             'MESSAGE_CREATE': self.handle_message_create,
+            'MESSAGE_DELETE': self.handle_message_delete,
+            'MESSAGE_UPDATE': self.handle_message_update,
             'INTERACTION_CREATE': self.handle_interaction_create,
             # 'MESSAGE_REACTION_ADD': self.handle_reaction_add,
             # 'MESSAGE_REACTION_REMOVE': self.handle_reaction_remove,
@@ -77,6 +84,7 @@ class Bot:
         self.ws = websocket.create_connection(url)
 
     def run_forever(self):
+        user_audit_log.setup()
         while True:
             raw_data = self.ws.recv()
             # one might think that after sending "compress": true, we can expect to only receive
@@ -89,6 +97,8 @@ class Bot:
                 print('<-', raw_data)
             data = json.loads(raw_data)
             self.seq = data['s']
+            if config.bot.user_audit_log and data['t'] in config.bot.user_audit_log['events']:
+                logging.info(json.dumps(data))
             handler = self.handlers.get(data['op'])
             if handler:
                 try:
@@ -242,6 +252,21 @@ class Bot:
                                         cmd.sender['global_name'] or \
                                         cmd.sender['username']
             handler(cmd)
+
+    def handle_message_update(self, d):
+        if not config.bot.user_audit_log:
+            return
+        messages = user_audit_log.search(d['id'])
+        self.send_message(config.bot.user_audit_log['channel'], \
+            f'Before: {messages[-2]["d"]["content"]} After: {messages[-1]["d"]["content"]}')
+
+    def handle_message_delete(self, d):
+        if not config.bot.user_audit_log:
+            return
+        messages = user_audit_log.search(d['id'])
+        self.send_message(config.bot.user_audit_log['channel'], \
+            f'Deleted: {messages[-2]["d"]["content"]}')
+
 
     def handle_interaction_create(self, d):
         if d.get('member', {}).get('user', {}).get('bot'):
