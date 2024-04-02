@@ -4,9 +4,7 @@ import datetime
 import importlib
 import json
 import logging
-import mimetypes
 import os
-import re
 import sys
 import threading
 import time
@@ -207,7 +205,8 @@ class Bot:
         self.heartbeat_thread = _thread.start_new_thread(self.heartbeat_loop, (d['heartbeat_interval'],))
         self.send(OP.IDENTIFY, {
             'token': config.bot.token,
-            'intents': INTENT.GUILDS | INTENT.GUILD_MESSAGES | INTENT.GUILD_MESSAGE_REACTIONS | INTENT.DIRECT_MESSAGES | INTENT.GUILD_MODERATION,
+            'intents': INTENT.GUILDS | INTENT.GUILD_MESSAGES | INTENT.GUILD_MESSAGE_REACTIONS \
+                | INTENT.DIRECT_MESSAGES | INTENT.GUILD_MODERATION,
             'properties': {
                 '$browser': 'github.com/lgbtqia-portugal/sbot',
                 '$device': 'github.com/lgbtqia-portugal/sbot',
@@ -293,9 +292,10 @@ class Bot:
         return
 
     def handle_member_role_update(self, d):
-        if d['changes'][0]['key'] == "$add" and d['changes'][0]['new_value'][0]['id'] == '1224303986933370941':
+        if d['changes'][0]['key'] == '$add' and d['changes'][0]['new_value'][0]['id'] == '1224303986933370941':
             self.send_message(config.bot.babies_greet['greet_channel'], \
-                f'<@{d["target_id"]}> bem-vinde ao servidor <:emoji:{config.bot.babies_greet["greet_emoji"]}> passa pelos <#{config.bot.babies_greet["roles_channel"]}> por favor :>')
+                f'<@{d["target_id"]}> bem-vinde ao servidor <:emoji:{config.bot.babies_greet["greet_emoji"]}> \
+                    passa pelos <#{config.bot.babies_greet["roles_channel"]}> por favor :>')
         return
 
 

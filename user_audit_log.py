@@ -1,11 +1,9 @@
+import json
 import logging
 import logging.handlers
-import time
-import json
 from subprocess import run
 
 import config
-
 
 log_file = config.bot.user_audit_log['file']
 
@@ -18,12 +16,12 @@ def setup():
 
 def search(msg):
     command = [
-        "rg",
-        "-N",
-        "--no-stats",
-        "--color=never",
-        f"{msg}",
-        log_file
+        'rg',
+        '-N',
+        '--no-stats',
+        '--color=never',
+        f'{msg}',
+        log_file,
     ]
     result = run(command, check=True, text=True, capture_output=True)
     return [json.loads(i) for i in result.stdout.splitlines()]

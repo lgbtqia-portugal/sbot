@@ -51,4 +51,4 @@ class MockGuild:
             'cats': {'position': 2, 'name': 'cats', 'color': 13369480, 'id': '2222'},
         }
 
-poe.price(MockCmd())
+# poe.price(MockCmd())

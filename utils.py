@@ -1,7 +1,5 @@
-from time import sleep
 import datetime
 import hashlib
-import random
 import re
 import struct
 import subprocess
@@ -238,4 +236,4 @@ def listbots(cmd):
         if 'bot' in member['user'] and member['user']['bot']:
             bots.append(f"`{member['user']['id']:<20}`   {member['user']['username']}")
 
-    cmd.reply(f"**{len(bots)} bots found**\n" + "\n".join(bots))
+    cmd.reply(f'**{len(bots)} bots found**\n' + '\n'.join(bots))

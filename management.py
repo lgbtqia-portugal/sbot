@@ -79,10 +79,10 @@ def verify(cmd):
     msg_del = []
     verified_users = []
     for msg in messages:
-        if args[0] == "all" or msg['author']['id'] in args:
+        if args[0] == 'all' or msg['author']['id'] in args:
             if msg['author']['id'] not in verified_users:
                 cmd.bot.post(f"/guilds/{cmd.d['guild_id']}/members/{msg['author']['id']}/roles/{config.bot.verify['role']}", \
-                    None, method='PUT')
+                    None, method='PUT')  # noqa: E501
                 verified_users.append(msg['author']['id'])
             msg_del.append(msg['id'])
 
