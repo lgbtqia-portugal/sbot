@@ -22,5 +22,5 @@ docker tag lgbtqia-portugal/sbot:$(git rev-parse --short HEAD) lgbtqia-portugal/
 
 Run:
 ```shell
-docker run -d --name sbot -v /home/lbatalha/src/sbot/config:/opt/sbot/config --restart=always -m 1G lgbtqia-portugal/sbot:latest
+docker run -d --name sbot -v /somedir/sbot/config:/opt/sbot/config --restart=always -m 1G lgbtqia-portugal/sbot:latest
 ```
