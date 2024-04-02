@@ -256,15 +256,17 @@ class Bot:
         if not config.bot.user_audit_log:
             return
         messages = user_audit_log.search(d['id'])
-        self.send_message(config.bot.user_audit_log['channel'], \
-            f'Before: {messages[-2]["d"]["content"]} After: {messages[-1]["d"]["content"]}')
+        if messages:
+            self.send_message(config.bot.user_audit_log['channel'], \
+                f'Before: {messages[-2]["d"]["content"]} After: {messages[-1]["d"]["content"]}')
 
     def handle_message_delete(self, d):
         if not config.bot.user_audit_log:
             return
         messages = user_audit_log.search(d['id'])
-        self.send_message(config.bot.user_audit_log['channel'], \
-            f'Deleted: {messages[-2]["d"]["content"]}')
+        if messages:
+            self.send_message(config.bot.user_audit_log['channel'], \
+                f'Deleted: {messages[-2]["d"]["content"]}')
 
 
     def handle_interaction_create(self, d):

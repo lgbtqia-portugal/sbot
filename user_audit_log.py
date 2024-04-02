@@ -1,7 +1,7 @@
 import json
 import logging
 import logging.handlers
-from subprocess import run
+from subprocess import run, CalledProcessError
 
 import config
 
@@ -23,5 +23,8 @@ def search(msg):
         f'{msg}',
         log_file,
     ]
-    result = run(command, check=True, text=True, capture_output=True)
-    return [json.loads(i) for i in result.stdout.splitlines()]
+    try:
+        result = run(command, check=True, text=True, capture_output=True)
+        return [json.loads(i) for i in result.stdout.splitlines()]
+    except CalledProcessError:
+        return
