@@ -1,7 +1,7 @@
 import json
 import logging
 import logging.handlers
-from subprocess import run, CalledProcessError
+from subprocess import CalledProcessError, run
 
 import config
 
