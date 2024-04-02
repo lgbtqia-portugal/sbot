@@ -1,4 +1,4 @@
-[tool.ruff]
+[tool.lint.ruff]
 line-length = 120
 select = [
 	'E', 'F', 'I',
@@ -6,8 +6,8 @@ select = [
 	'PLC', 'PLE',
 	'RUF',
 ]
-[tool.ruff.flake8-quotes]
+[tool.ruff.lint.flake8-quotes]
 inline-quotes = 'single'
 multiline-quotes = 'single'
-[tool.ruff.isort]
+[tool.ruff.lint.isort]
 lines-after-imports = 1
