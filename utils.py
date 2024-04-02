@@ -132,15 +132,15 @@ def roll(cmd):
         cmd.reply('%s: error rolling' % cmd.sender['pretty_name'])
 
 tzinfos = {
-    'PST': dateutil.tz.gettz('America/Los_Angeles'),
-    'PDT': dateutil.tz.gettz('America/Los_Angeles'),
-    'MST': dateutil.tz.gettz('America/Denver'),
-    'MDT': dateutil.tz.gettz('America/Denver'),
-    'CST': dateutil.tz.gettz('America/Chicago'),
-    'CDT': dateutil.tz.gettz('America/Chicago'),
-    'EST': dateutil.tz.gettz('America/New_York'),
-    'EDT': dateutil.tz.gettz('America/New_York'),
-    'WET': dateutil.tz.gettz('Europe/Lisbon'),
+    'PST':  dateutil.tz.gettz('America/Los_Angeles'),
+    'PDT':  dateutil.tz.gettz('America/Los_Angeles'),
+    'MST':  dateutil.tz.gettz('America/Denver'),
+    'MDT':  dateutil.tz.gettz('America/Denver'),
+    'CST':  dateutil.tz.gettz('America/Chicago'),
+    'CDT':  dateutil.tz.gettz('America/Chicago'),
+    'EST':  dateutil.tz.gettz('America/New_York'),
+    'EDT':  dateutil.tz.gettz('America/New_York'),
+    'WET':  dateutil.tz.gettz('Europe/Lisbon'),
     'WEST': dateutil.tz.gettz('Europe/Lisbon'),
 }
 def time(cmd):
@@ -160,23 +160,24 @@ def time(cmd):
 def weather(cmd):
     if not cmd.args:
         return
-    flags = "format=**%l:**+%c+++🌡+`%t(%f)`++💦+`%h`++💨+`%w`++**☔**+`%p/3h`++**UVI:**+`%u`\
-                \n**Time:**+`%T`++**Sunrise:**+`%S`++**Sunset:**+`%s`++**Moon:**+%m"
+    flags = 'format=**%l:**+%c+++🌡+`%t(%f)`++💦+`%h`++💨+`%w`++**☔**+`%p/3h`++**UVI:**+`%u`\n' \
+                    '**Time:**+`%T`++**Sunrise:**+`%S`++**Sunset:**+`%s`++**Moon:**+%m'
     location = cmd.args
     url = f'https://wttr.in/{urllib.parse.quote_plus(location.title())}?{flags}'
     try:
         response = rs.get(url)
-        response.raise_for_status()
-    except Exception:
         if response.status_code == 503:
             cmd.reply(f'{cmd.sender["pretty_name"]}: service unavailable for {location}')
-        elif response.status_code == 404:
+            return
+        if response.status_code == 404:
             cmd.reply(f'{cmd.sender["pretty_name"]}: {location} not found')
-        else:
-            cmd.reply(f'{cmd.sender["pretty_name"]}: error getting weather at {url}',
-                    {'description': f'```{traceback.format_exc()[-500:]}```'})
+            return
+        response.raise_for_status()
+    except Exception:
+        cmd.reply(f'{cmd.sender["pretty_name"]}: error getting weather at {url}',
+                {'description': f'```{traceback.format_exc()[-500:]}```'})
         return
-    cmd.reply(response.content.decode())
+    cmd.reply(response.text)
 
 def ddd(cmd):
     guild_id = cmd.d['guild_id']
