@@ -4,3 +4,4 @@ __pycache__
 */state.yaml
 *.log
 *.sqlite
+.ruff_cache

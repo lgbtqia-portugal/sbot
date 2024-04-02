@@ -1,0 +1,7 @@
+__pycache__
+config/
+*.log
+.github
+.ruff_cache
+tests
+README.md
