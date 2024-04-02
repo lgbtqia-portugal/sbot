@@ -18,4 +18,4 @@ USER sbot
 
 RUN pip install --user --no-warn-script-location -r requirements.txt
 
-ENTRYPOINT ${BOT_DIR}/sbot
+ENTRYPOINT ["python", "sbot"]
