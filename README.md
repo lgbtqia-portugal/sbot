@@ -4,11 +4,12 @@ a discord bot
 
 ## setup
 
-set up an app at https://discord.com/developers/applications
+set up an app at https://discord.com/developers/applications with the `bot` scope
 ```
 pip3 install -r requirements.txt
-cp config.yaml{.example,}
-$EDITOR config.yaml
+mkdir config
+cp config.yaml.example config/config.yaml
+$EDITOR config/config.yaml
 ./sbot
 ```
 
