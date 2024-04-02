@@ -28,8 +28,8 @@ class YamlAttrs:
     def __str__(self):
         return '%s %s' % (self.__class__, self.__dict__)
 
-bot = YamlAttrs('config.yaml')
-state = YamlAttrs('state.yaml',
+bot = YamlAttrs('config/config.yaml')
+state = YamlAttrs('config/state.yaml',
     defaults={
         'gateway_url': None,
         'timers': {},

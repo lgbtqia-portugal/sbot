@@ -1,6 +1,6 @@
 __pycache__
-/cans.yaml
-/config.yaml
-/state.yaml
+*/cans.yaml
+*/config.yaml
+*/state.yaml
 /sbot.log
 *.sqlite
