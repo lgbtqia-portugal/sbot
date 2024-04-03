@@ -262,6 +262,12 @@ class Bot:
                 "title": f"Message edited in <#{d['channel_id']}>",
                 "description": f"**Before:**\n{messages[1]['d']['content']}\n**After:**\n{messages[0]['d']['content']}",
                 "color": 0xffce2d,
+                "fields": [
+                    {
+                    "name": "\u200B",
+                    "value": f"Message ID: `{d['id']}`"
+                    },
+                ],
                 "timestamp": f"{d['edited_timestamp']}",
                 "author": {
                     "name": f"{d['author']['username']}",
