@@ -18,8 +18,8 @@ def setup():
     except FileExistsError:
         log.write('user audit log directory already exists')
 
-    log_handler = logging.handlers.TimedRotatingFileHandler(os.path.join(log_dir, log_file), \
-        backupCount=45, when='midnight', utc=True)
+    log_handler = logging.handlers.RotatingFileHandler(os.path.join(log_dir, log_file), \
+        backupCount=10, maxBytes=10*1000*1000)
     logger = logging.getLogger()
     logger.addHandler(log_handler)
     logger.setLevel(logging.INFO)
@@ -44,11 +44,10 @@ def search(msg):
             ]
             try:
                 result = run(command, check=True, text=True, capture_output=True)
-                output += result.stdout.splitlines()
-
+                output += reversed(result.stdout.splitlines())
             except CalledProcessError as e:
                 if e.returncode != 1:
-                    log.write(e.returncode)
+                    raise CalledProcessError from e
 
         if len(output) > 1:
             return [json.loads(i) for i in output]

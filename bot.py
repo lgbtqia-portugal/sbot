@@ -307,7 +307,7 @@ class Bot:
                     "value": f"Message ID: `{d['id']}`"
                     },
                 ],
-                "timestamp": f"{datetime.datetime.now().isoformat()}",
+                "timestamp": f"{datetime.datetime.utcnow().isoformat()}",
                 "author": {
                     "name": f"{messages[1]['d']['author']['username']}",
                     "icon_url": f"https://cdn.discordapp.com/avatars/{messages[1]['d']['author']['id']}/{messages[1]['d']['author']['avatar']}.png?size=128"
