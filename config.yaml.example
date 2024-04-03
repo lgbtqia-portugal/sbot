@@ -2,6 +2,7 @@ app_id: null
 token: null
 err_channel: null
 user_audit_log:
+    dir: 'logs'
     file: 'user_audit.log'
     channel: '1224496998892175440'
     events:
