@@ -380,7 +380,7 @@ class Bot:
         if d['channel_id'] not in config.bot.forum_react.keys():
             return
 
-        message = self.get_message(d['channel_id'], d['message_id'])
+        #message = self.get_message(d['channel_id'], d['message_id'])
         self.react(d['channel_id'], d['message_id'], '✅')
 
     def handle_reaction_remove(self, d):
