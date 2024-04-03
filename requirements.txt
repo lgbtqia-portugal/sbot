@@ -4,3 +4,4 @@ requests
 requests_oauthlib
 websocket-client
 jsonlines
+natsort

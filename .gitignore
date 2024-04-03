@@ -5,3 +5,4 @@ __pycache__
 *.log
 *.sqlite
 .ruff_cache
+logs/

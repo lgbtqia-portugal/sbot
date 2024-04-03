@@ -257,16 +257,61 @@ class Bot:
             return
         messages = user_audit_log.search(d['id'])
         if messages:
-            self.send_message(config.bot.user_audit_log['channel'], \
-                f'Before: {messages[-2]["d"]["content"]} After: {messages[-1]["d"]["content"]}')
+            embed = {
+                "type": "rich",
+                "title": f"Message edited in <#{d['channel_id']}>",
+                "description": f"**Before:**\n{messages[1]['d']['content']}\n**After:**\n{messages[0]['d']['content']}",
+                "color": 0xffce2d,
+                "timestamp": f"{d['edited_timestamp']}",
+                "author": {
+                    "name": f"{d['author']['username']}",
+                    "icon_url": f"https://cdn.discordapp.com/avatars/{d['author']['id']}/{d['author']['avatar']}.png?size=128"
+                },
+                "footer": {
+                    "text": f"Account ID: {d['author']['id']}"
+                },
+                "url": f"https://discord.com/channels/{d['guild_id']}/{d['channel_id']}/{d['id']}"
+            }
+            self.send_message(config.bot.user_audit_log['channel'], '', embed=embed)
+        return
 
     def handle_message_delete(self, d):
         if not config.bot.user_audit_log:
             return
         messages = user_audit_log.search(d['id'])
+        reply = ""
         if messages:
-            self.send_message(config.bot.user_audit_log['channel'], \
-                f'Deleted: {messages[-2]["d"]["content"]}')
+            if 'attachments' in messages[1]['d'] and messages[1]['d']['attachments']:
+                filenames = []
+                urls = []
+                for att in messages[1]['d']['attachments']:
+                    filenames.append(att['filename'])
+                    urls.append(att['url'])
+                reply = "**Attachments:**\n"
+                reply += "\n".join(urls)
+
+            embed = {
+                "type": "rich",
+                "title": f"Message deleted in <#{d['channel_id']}>",
+                "description": f"{messages[1]['d']['content']}",
+                "color": 0xf71414,
+                "fields": [
+                    {
+                    "name": "\u200B",
+                    "value": f"Message ID: `{d['id']}`"
+                    },
+                ],
+                "timestamp": f"{datetime.datetime.now().isoformat()}",
+                "author": {
+                    "name": f"{messages[1]['d']['author']['username']}",
+                    "icon_url": f"https://cdn.discordapp.com/avatars/{messages[1]['d']['author']['id']}/{messages[1]['d']['author']['avatar']}.png?size=128"
+                },
+                "footer": {
+                    "text": f"Account ID: {messages[1]['d']['author']['id']}"
+                },
+            }
+            self.send_message(config.bot.user_audit_log['channel'], reply, embed=embed)
+        return
 
 
     def handle_interaction_create(self, d):
@@ -336,8 +381,6 @@ class Bot:
             return
 
         message = self.get_message(d['channel_id'], d['message_id'])
-        print(message)
-
         self.react(d['channel_id'], d['message_id'], '✅')
 
     def handle_reaction_remove(self, d):

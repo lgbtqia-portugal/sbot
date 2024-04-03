@@ -5,3 +5,4 @@ config/
 .ruff_cache
 tests
 README.md
+logs/
