@@ -56,6 +56,12 @@ can_usage = f'usage: `{config.bot.prefix_char}can list`, \
     ],
 })
 def canned(cmd):
+    print("TESTING")
+    print(cmd.d)
+    print(":TESTING")
+    if not any(r in cmd.d['member']['roles'] for r in config.bot.priv_roles):
+        cmd.reply("You don't have permissions to use this command")
+        return
     options = getattr(cmd, 'options', None)
     if options is not None:
         # this is an InteractionEvent (slash-command)
@@ -103,8 +109,6 @@ def canned(cmd):
             _can_get(cmd, subcmd)
 
 def _can_list(cmd):
-    if not any(r in cmd.d['member']['roles'] for r in config.bot.priv_roles):
-        return
     names = _get_cans().keys()
     if names:
         embed = {'description': '\n'.join(names)}
@@ -113,8 +117,6 @@ def _can_list(cmd):
         cmd.reply('no canned responses')
 
 def _can_set(cmd, name, text):
-    if not any(r in cmd.d['member']['roles'] for r in config.bot.priv_roles):
-        return
     if name in ['list', 'set', 'del']:
         cmd.reply(name + ' is a reserved word')
         return
@@ -127,8 +129,6 @@ def _can_set(cmd, name, text):
     cmd.reply(f'set canned reply; retrieve via `{config.bot.prefix_char}can {name}`')
 
 def _can_del(cmd, name):
-    if not any(r in cmd.d['member']['roles'] for r in config.bot.priv_roles):
-        return
     cans = _get_cans()
     try:
         del cans[name]
@@ -139,8 +139,6 @@ def _can_del(cmd, name):
     cmd.reply('deleted canned reply ' + name)
 
 def _can_get(cmd, name):
-    if not any(r in cmd.d['member']['roles'] for r in config.bot.priv_roles):
-        return
     try:
         cmd.reply(_get_cans()[name])
     except KeyError:

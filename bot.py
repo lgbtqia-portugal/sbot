@@ -502,6 +502,7 @@ class InteractionEvent:
         self.options = d['data'].get('options', [])
         self.args = ' '.join(InteractionEvent.iter_option_values(self.options))
         self.bot = bot
+        self.d = d
 
     def reply(self, message, embed=None):
         path = '/webhooks/%s/%s/messages/@original' % (config.bot.app_id, self.token)

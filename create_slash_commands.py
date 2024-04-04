@@ -36,6 +36,7 @@ def main():
             r = rs.post(url, json={
                 'name': name,
                 'description': description,
+                'default_member_permissions': str(1 << 5), # MANAGE_GUILD
                 'options': handler.options,
             })
             print(r.content)
