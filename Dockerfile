@@ -11,9 +11,9 @@ RUN useradd -Um sbot
 
 USER sbot
 
-COPY --link . ${BOT_DIR}
+COPY --link --chown=1000:1000 . ${BOT_DIR}
 
-RUN chown -R sbot: ${BOT_DIR}
+# RUN chown -R sbot: ${BOT_DIR}
 
 WORKDIR ${BOT_DIR}
 
