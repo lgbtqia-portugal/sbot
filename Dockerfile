@@ -9,11 +9,11 @@ ENV LANG en_US.utf8
 
 RUN useradd -Um sbot
 
-RUN chown -R sbot: ${BOT_DIR}
-
 USER sbot
 
 COPY --link . ${BOT_DIR}
+
+RUN chown -R sbot: ${BOT_DIR}
 
 WORKDIR ${BOT_DIR}
 
