@@ -9,9 +9,11 @@ ENV LANG en_US.utf8
 
 RUN useradd -Um sbot
 
+RUN chown -R sbot: ${BOT_DIR}
+
 USER sbot
 
-COPY --link --chown=$(id -u sbot):$(id -g sbot) . ${BOT_DIR}
+COPY --link . ${BOT_DIR}
 
 WORKDIR ${BOT_DIR}
 
