@@ -28,7 +28,6 @@ def help(cmd):
                 commands.remove(name)
                 mod_commands.append(name)
 
-
     reply = '**commands:** ' + ', '.join(config.bot.prefix_char + cmd for cmd in commands)
     if any(r in cmd.d['member']['roles'] for r in config.bot.priv_roles):
         reply += f"\n**mod commands:** {', '.join(config.bot.prefix_char + cmd for cmd in mod_commands)}"

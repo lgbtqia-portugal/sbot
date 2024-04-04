@@ -49,6 +49,7 @@ class Bot:
             'MESSAGE_CREATE': self.handle_message_create,
             'MESSAGE_DELETE': self.handle_message_delete,
             'MESSAGE_UPDATE': self.handle_message_update,
+            'MESSAGE_DELETE_BULK': self.handle_message_delete_bulk,
             'INTERACTION_CREATE': self.handle_interaction_create,
             # 'MESSAGE_REACTION_ADD': self.handle_reaction_add,
             # 'MESSAGE_REACTION_REMOVE': self.handle_reaction_remove,
@@ -319,6 +320,20 @@ class Bot:
             self.send_message(config.bot.user_audit_log['channel'], reply, embed=embed)
         return
 
+    def handle_message_delete_bulk(self, d):
+        if not config.bot.user_audit_log:
+            return
+        embed = {
+            "type": "rich",
+            "title": f"Bulk Message delete in <#{d['channel_id']}>",
+            "description": f"`{','.join(d['ids'])}`",
+            "color": 0xa60063,
+            "timestamp": f"{datetime.datetime.utcnow().isoformat()}",
+            "footer": {
+                "text": f"Message count: {len(d['ids'])}"
+            },
+        }
+        self.send_message(config.bot.user_audit_log['channel'], '', embed=embed)
 
     def handle_interaction_create(self, d):
         if d.get('member', {}).get('user', {}).get('bot'):
