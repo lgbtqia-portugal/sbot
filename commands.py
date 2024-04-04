@@ -17,13 +17,15 @@ commands = {
 
     # management commands
     'can': canned.canned,
-    'listbots': utils.listbots,
+    'listbots': management.listbots,
     'verify': management.verify,
+    'massban': management.mass_ban,
+    'cleanup': management.cleanup,
 
     #'join': management.join,
     #'leave': management.leave,
     #'roles': management.list_roles,
     #'groups': management.list_roles,
-    #'cleanup': management.cleanup,
-    #'massban': management.mass_ban,
+
+
 }

@@ -253,7 +253,7 @@ class Bot:
             handler(cmd)
 
     def handle_message_update(self, d):
-        if not config.bot.user_audit_log:
+        if not config.bot.user_audit_log or d['author']['bot']:
             return
         messages = user_audit_log.search(d['id'])
         if messages:
@@ -347,8 +347,8 @@ class Bot:
     def handle_member_role_update(self, d):
         if d['changes'][0]['key'] == '$add' and d['changes'][0]['new_value'][0]['id'] == '1224303986933370941':
             self.send_message(config.bot.babies_greet['greet_channel'], \
-                f'<@{d["target_id"]}> bem-vinde ao servidor <:emoji:{config.bot.babies_greet["greet_emoji"]}> \
-                    passa pelos <#{config.bot.babies_greet["roles_channel"]}> por favor :>')
+                f'<@{d["target_id"]}> bem-vinde ao servidor <:emoji:{config.bot.babies_greet["greet_emoji"]}> ' \
+                    f'passa pelos <#{config.bot.babies_greet["roles_channel"]}> por favor :>')
         return
 
 

@@ -42,30 +42,17 @@ def list_roles(cmd):
     embed = {'description': desc}
     cmd.reply('', embed)
 
-def cleanup(cmd):
-    if cmd.sender['id'] != '109405765848088576':
-        return
-    try:
-        start, end = cmd.args.split()
-        int(start)
-        int(end)
-    except ValueError:
-        cmd.reply(f'usage: {config.bot.prefix_char}cleanup 000 111')
-        return
-    messages = cmd.bot.iter_messages(cmd.channel_id, str(int(start) - 1), end)
-    message_ids = [msg['id'] for msg in messages]
-    if len(message_ids) > 0:
-        cmd.bot.delete_messages(cmd.channel_id, message_ids)
-    else:
-        cmd.reply('no messages in range')
-
 def verify(cmd):
     if not any(r in cmd.d['member']['roles'] for r in config.bot.priv_roles):
         return
     if not cmd.args:
         return
+    cmd.bot.delete_messages(cmd.channel_id, [cmd.d['id']])
     args = cmd.args.split()
-
+    if len(args) < 1:
+        cmd.bot.send_message(config.bot.err_channel, \
+            f"<@{cmd.sender['id']}> usage: `{config.bot.prefix_char}verify all|USER_ID...`")
+        return
     rslimit = 100
     messages = cmd.bot.get(f"/channels/{config.bot.verify['channel']}/messages", \
                 {'limit': rslimit})
@@ -79,43 +66,90 @@ def verify(cmd):
     msg_del = []
     verified_users = []
     for msg in messages:
+        print(msg)
         if args[0] == 'all' or msg['author']['id'] in args:
             if msg['author']['id'] not in verified_users:
                 cmd.bot.post(f"/guilds/{cmd.d['guild_id']}/members/{msg['author']['id']}/roles/{config.bot.verify['role']}", \
                     None, method='PUT')  # noqa: E501
                 verified_users.append(msg['author']['id'])
-            msg_del.append(msg['id'])
+            if not msg['pinned']:
+                msg_del.append(msg['id'])
+    if msg_del:
+        cmd.bot.delete_messages(config.bot.verify['channel'], msg_del)
+        return
+    cmd.bot.send_message(config.bot.err_channel, 'verify: no users to verify')
 
-    cmd.bot.delete_messages(config.bot.verify['channel'], msg_del)
-
-
+def cleanup(cmd):
+    if not any(r in cmd.d['member']['roles'] for r in config.bot.priv_roles):
+        return
+    cmd.bot.delete_messages(cmd.channel_id, [cmd.d['id']])
+    try:
+        start, end = cmd.args.split()
+        int(start)
+        int(end)
+    except ValueError:
+        cmd.bot.send_message(config.bot.err_channel, \
+            f"<@{cmd.sender['id']}> usage: `{config.bot.prefix_char}cleanup start_msg_id end_msg_id`")
+        return
+    messages = cmd.bot.iter_messages(cmd.channel_id, str(int(start) - 1), end)
+    message_ids = [msg['id'] for msg in messages]
+    cmd.bot.send_message(config.bot.err_channel, f"cleanup started by <@{cmd.sender['id']}> in <#{cmd.channel_id}>")
+    if len(message_ids) > 0:
+        cmd.bot.delete_messages(cmd.channel_id, message_ids)
+        cmd.bot.send_message(config.bot.err_channel, 'cleanup completed')
+    else:
+        cmd.bot.send_message(config.bot.err_channel, f"<@{cmd.sender['id']}> cleanup: no messages in range")
 
 def mass_ban(cmd):
-    if cmd.channel_id != '473980984874762242': # staff-chat
+    if not any(r in cmd.d['member']['roles'] for r in config.bot.priv_roles):
         return
+    cmd.bot.delete_messages(cmd.channel_id, [cmd.d['id']])
     try:
         start, end = cmd.args.split()
     except ValueError:
-        cmd.reply(f'usage: `{config.bot.prefix_char}massban start_msg_id end_msg_id`')
+        cmd.bot.send_message(config.bot.err_channel, \
+            f"<@{cmd.sender['id']}> usage: `{config.bot.prefix_char}massban start_msg_id end_msg_id`")
         return
-    programming_guild = '181866934353133570'
-    join_channel = '209074609893408768'
     try:
-        cmd.bot.get_message(join_channel, start)
-        cmd.bot.get_message(join_channel, end)
+        cmd.bot.get_message(cmd.channel_id, start)
+        cmd.bot.get_message(cmd.channel_id, end)
     except requests.exceptions.HTTPError as e:
         if e.response.status_code != 404:
             raise
-        cmd.reply('could not find %s or %s in #join' % (start, end))
+        cmd.bot.send_message(config.bot.err_channel, \
+            f'could not find {start=} or {end=}')
         return
-    cmd.reply('mass banning started')
-    for msg in cmd.bot.iter_messages(join_channel, str(int(start) - 1), end):
-        if 'welcome to Programming!' not in msg['content']:
-            continue
-        user_id = msg['mentions'][0]['id']
-        log.write('banning %s' % user_id)
-        cmd.bot.ban(programming_guild, user_id)
-    cmd.reply('mass banning complete!')
+    cmd.bot.send_message(config.bot.err_channel, f"mass banning started (by <@{cmd.sender['id']}> in <#{cmd.channel_id}>)")
+    msg_del = []
+    for msg in cmd.bot.iter_messages(cmd.channel_id, str(int(start) - 1), end):
+        user_id = msg['author']['id']
+        log.write(f'banning {user_id}')
+        cmd.bot.ban(cmd.d['guild_id'], user_id)
+        msg_del.append(msg['id'])
+
+    cmd.bot.delete_messages(cmd.channel_id, msg_del)
+    cmd.bot.send_message(config.bot.err_channel, 'mass banning complete')
+
+def listbots(cmd):
+    if not any(r in cmd.d['member']['roles'] for r in config.bot.priv_roles):
+        return
+    rslimit = 1000
+    members = cmd.bot.get(f"/guilds/{cmd.d['guild_id']}/members", \
+                {'limit': rslimit})
+    rslen = len(members)
+
+    while rslen == rslimit:
+        rs = cmd.bot.get(f"/guilds/{cmd.d['guild_id']}/members", \
+                {'limit': rslimit, 'after': members[-1]['user']['id']})
+        rslen = len(rs)
+        members += rs
+
+    bots = []
+    for member in members:
+        if 'bot' in member['user'] and member['user']['bot']:
+            bots.append(f"`{member['user']['id']:<20}`   {member['user']['username']}")
+
+    cmd.reply(f'**{len(bots)} bots found**\n' + '\n'.join(bots))
 
 def _ids(cmd):
     bot = cmd.bot

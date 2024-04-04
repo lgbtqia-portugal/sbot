@@ -19,15 +19,19 @@ rs = requests.Session()
 rs.headers['User-Agent'] = 'sbot (github.com/lgbtqia-portugal/sbot)'
 
 def help(cmd):
-    if cmd.args: # only reply on "{config.bot.prefix_char}help"
-        return
     commands = list(cmd.bot.commands.keys())
+    mod_commands = []
     guild_id = cmd.bot.channels[cmd.channel_id]
     if config.bot.roles is None or guild_id != config.bot.roles['server']:
         for name, func in cmd.bot.commands.items():
-            if func.__module__ == 'management':
+            if func.__module__ in ['management', 'canned']:
                 commands.remove(name)
-    reply = 'commands: ' + ', '.join(config.bot.prefix_char + cmd for cmd in commands)
+                mod_commands.append(name)
+
+
+    reply = '**commands:** ' + ', '.join(config.bot.prefix_char + cmd for cmd in commands)
+    if any(r in cmd.d['member']['roles'] for r in config.bot.priv_roles):
+        reply += f"\n**mod commands:** {', '.join(config.bot.prefix_char + cmd for cmd in mod_commands)}"
     cmd.reply(reply)
 
 def botinfo(cmd):
@@ -215,25 +219,3 @@ def ddd(cmd):
         },
     }
     cmd.reply('', embed)
-
-
-def listbots(cmd):
-    if not any(r in cmd.d['member']['roles'] for r in config.bot.priv_roles):
-        return
-    rslimit = 1000
-    members = cmd.bot.get(f"/guilds/{cmd.d['guild_id']}/members", \
-                {'limit': rslimit})
-    rslen = len(members)
-
-    while rslen == rslimit:
-        rs = cmd.bot.get(f"/guilds/{cmd.d['guild_id']}/members", \
-                {'limit': rslimit, 'after': members[-1]['user']['id']})
-        rslen = len(rs)
-        members += rs
-
-    bots = []
-    for member in members:
-        if 'bot' in member['user'] and member['user']['bot']:
-            bots.append(f"`{member['user']['id']:<20}`   {member['user']['username']}")
-
-    cmd.reply(f'**{len(bots)} bots found**\n' + '\n'.join(bots))

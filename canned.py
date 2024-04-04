@@ -3,7 +3,7 @@ import yaml
 import command
 import config
 
-can_usage = f'usage: `{config.bot.prefix_char}can list`, \
+can_usage = f' usage: `{config.bot.prefix_char}can list`, \
     `{config.bot.prefix_char}can set cow moo`, \
     `{config.bot.prefix_char}can cow`, \
     `{config.bot.prefix_char}can del cow`'
@@ -57,7 +57,8 @@ can_usage = f'usage: `{config.bot.prefix_char}can list`, \
 })
 def canned(cmd):
     if not any(r in cmd.d['member']['roles'] for r in config.bot.priv_roles):
-        cmd.reply("You don't have permissions to use this command")
+        cmd.bot.send_message(config.bot.err_channel, \
+            f"<@{cmd.sender['id']}>: you don't have permissions to use this command")
         return
     options = getattr(cmd, 'options', None)
     if options is not None:
@@ -76,10 +77,11 @@ def canned(cmd):
             name = options[0]['options'][0]['value']
             _can_get(cmd, name)
         else:
-            raise AssertionError('unexpeced can sub-command: %r' % subcmd)
+            raise AssertionError('unexpected can sub-command: %r' % subcmd)
     else:
+        cmd.bot.delete_messages(cmd.channel_id, [cmd.d['id']])
         if not cmd.args:
-            cmd.reply(can_usage)
+            cmd.bot.send_message(config.bot.err_channel, f"<@{cmd.sender['id']}>" + can_usage)
             return
         split = cmd.args.split(' ', 1)
         subcmd = split[0]
