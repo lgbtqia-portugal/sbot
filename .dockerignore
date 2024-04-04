@@ -1,8 +1,9 @@
 __pycache__
-config/
-*.log
+.git
 .github
 .ruff_cache
-tests
-README.md
+*.log
+config/
 logs/
+README.md
+tests/

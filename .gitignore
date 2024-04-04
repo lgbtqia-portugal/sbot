@@ -1,8 +1,6 @@
 __pycache__
-*/cans.yaml
-*/config.yaml
-*/state.yaml
+.ruff_cache
 *.log
 *.sqlite
-.ruff_cache
+config/
 logs/

@@ -9,7 +9,7 @@ ENV LANG en_US.utf8
 
 RUN useradd -Um sbot
 
-RUN git clone --depth=1 "https://github.com/lgbtqia-portugal/sbot.git" --single-branch --branch main ${BOT_DIR}
+COPY --link --chown=sbot:sbot . ${BOT_DIR}
 
 WORKDIR ${BOT_DIR}
 
