@@ -11,7 +11,7 @@ RUN useradd -Um sbot
 
 USER sbot
 
-COPY --link --chown=sbot:sbot . ${BOT_DIR}
+COPY --link --chown=${id -u sbot}:${id -g sbot} . ${BOT_DIR}
 
 WORKDIR ${BOT_DIR}
 
