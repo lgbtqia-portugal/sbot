@@ -254,7 +254,7 @@ class Bot:
             handler(cmd)
 
     def handle_message_update(self, d):
-        if not config.bot.user_audit_log or d['author']['bot']:
+        if not config.bot.user_audit_log or 'bot' in d['author']:
             return
         messages = user_audit_log.search(d['id'])
         if messages:
