@@ -26,6 +26,6 @@ jobs:
         push: true
         tags: |
           lgbtqia-portugal/sbot:latest
-          lgbtqia-portugal/sbot:$(git rev-parse --short HEAD)
+          lgbtqia-portugal/sbot:${{ github.sha }}
           ghcr.io/lgbtqia-portugal/sbot:latest
-          ghcr.io/lgbtqia-portugal/sbot:$(git rev-parse --short HEAD)  
+          ghcr.io/lgbtqia-portugal/sbot:${{ github.sha }}  
