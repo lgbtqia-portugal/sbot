@@ -56,9 +56,6 @@ can_usage = f'usage: `{config.bot.prefix_char}can list`, \
     ],
 })
 def canned(cmd):
-    print("TESTING")
-    print(cmd.d)
-    print(":TESTING")
     if not any(r in cmd.d['member']['roles'] for r in config.bot.priv_roles):
         cmd.reply("You don't have permissions to use this command")
         return
