@@ -39,7 +39,7 @@ def search(msg):
                 '-N',
                 '--no-stats',
                 '--color=never',
-                f'{msg}',
+                f'"id": "{msg}"',
                 os.path.join(log_dir, file),
             ]
             try:

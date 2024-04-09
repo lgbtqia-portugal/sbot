@@ -14,6 +14,7 @@ commands = {
     'unicode': utils.unicode,
     'time': utils.time,
     'weather': utils.weather,
+    'color': utils.color,
 
     # management commands
     'can': canned.canned,

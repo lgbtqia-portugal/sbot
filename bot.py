@@ -254,14 +254,19 @@ class Bot:
             handler(cmd)
 
     def handle_message_update(self, d):
-        if not config.bot.user_audit_log or 'bot' in d['author']:
+        if not config.bot.user_audit_log:
+            return
+        if len(d['embeds'])>0 and d['embeds'][0]['type'] != 'link':
             return
         messages = user_audit_log.search(d['id'])
         if messages:
+            embed_rm_msg = ""
+            if len(messages[1]['d']) > 0 and len(messages[0]['d']['embeds']) == 0:
+                embed_rm_msg = "[embeds removed]"
             embed = {
                 "type": "rich",
                 "title": f"Message edited in <#{d['channel_id']}>",
-                "description": f"**Before:**\n{messages[1]['d']['content']}\n**After:**\n{messages[0]['d']['content']}",
+                "description": f"### Before:\n{messages[1]['d']['content']}\n### After:  `{embed_rm_msg}`\n{messages[0]['d']['content']}",
                 "color": 0xffce2d,
                 "fields": [
                     {
@@ -269,7 +274,7 @@ class Bot:
                     "value": f"Message ID: `{d['id']}`"
                     },
                 ],
-                "timestamp": f"{d['edited_timestamp']}",
+                "timestamp": f"{datetime.datetime.utcnow().isoformat()}",
                 "author": {
                     "name": f"{d['author']['username']}",
                     "icon_url": f"https://cdn.discordapp.com/avatars/{d['author']['id']}/{d['author']['avatar']}.png?size=128"
@@ -325,13 +330,10 @@ class Bot:
             return
         embed = {
             "type": "rich",
-            "title": f"Bulk Message delete in <#{d['channel_id']}>",
-            "description": f"`{','.join(d['ids'])}`",
+            "title": f"Bulk message delete in <#{d['channel_id']}>",
+            "description": f"`{len(d['ids'])}` messages were deleted",
             "color": 0xa60063,
             "timestamp": f"{datetime.datetime.utcnow().isoformat()}",
-            "footer": {
-                "text": f"Message count: {len(d['ids'])}"
-            },
         }
         self.send_message(config.bot.user_audit_log['channel'], '', embed=embed)
 

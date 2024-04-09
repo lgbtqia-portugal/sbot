@@ -218,3 +218,6 @@ def ddd(cmd):
         },
     }
     cmd.reply('', embed)
+
+def color(cmd):
+    pass
