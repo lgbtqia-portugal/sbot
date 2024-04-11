@@ -362,7 +362,7 @@ class Bot:
         return
 
     def handle_member_role_update(self, d):
-        if d['changes'][0]['key'] == '$add' and d['changes'][0]['new_value'][0]['id'] == '1224303986933370941':
+        if d['changes'][0]['key'] == '$add' and d['changes'][0]['new_value'][0]['id'] == config.bot.verify["role"]:
             self.send_message(config.bot.babies_greet['greet_channel'], \
                 f'<@{d["target_id"]}> bem-vinde ao servidor <:emoji:{config.bot.babies_greet["greet_emoji"]}> ' \
                     f'passa pelos <#{config.bot.babies_greet["roles_channel"]}> por favor :>')
