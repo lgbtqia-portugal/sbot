@@ -263,6 +263,8 @@ class Bot:
             embed_rm_msg = ""
             if len(messages[1]['d']['embeds']) > 0 and len(messages[0]['d']['embeds']) == 0:
                 embed_rm_msg = "`[embeds removed]`"
+            if 'content' not in messages[0]['d']: #embed triggered message updates dont have content
+                return
             embed = {
                 "type": "rich",
                 "title": f"Message edited in <#{d['channel_id']}>",
