@@ -124,8 +124,13 @@ def units(cmd):
 def bonk(cmd):
     if not config.bot.bonk_emoji or cmd.d['type'] != command.CMD_TYPE.USER:
         return
-    emoji = f"<a:emoji:{random.choice(config.bot.bonk_emoji)}>"
-    cmd.reply(f"<@{cmd.d['data']['target_id']}> {emoji}")
+    embed = {
+        'title': 'GET BONKED',
+        'image': {
+            'url': random.choice(config.bot.bonk_emoji),
+        }
+    }
+    cmd.reply(f"<@{cmd.d['data']['target_id']}>", embed=embed)
 
 
 def roll(cmd):
