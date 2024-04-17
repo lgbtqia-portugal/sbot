@@ -294,6 +294,8 @@ class Bot:
     def handle_message_delete(self, d):
         if not config.bot.user_audit_log:
             return
+        if 'author' in d and 'bot' in d['author'] and d['author']['bot']: # ignore bot dynamic message edits
+            return
         messages = user_audit_log.search(d['id'])
         reply = ""
         if messages:
