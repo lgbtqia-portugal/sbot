@@ -258,6 +258,8 @@ class Bot:
             return
         if len(d['embeds'])>0 and d['embeds'][0]['type'] not in ['link', 'article']:
             return
+        if 'author' in d and 'bot' in d['author'] and d['author']['bot']: # ignore bot dynamic message edits
+            return
         messages = user_audit_log.search(d['id'])
         if messages:
             embed_rm_msg = ""
