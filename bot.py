@@ -146,7 +146,7 @@ class Bot:
             print('->', raw_data)
         self.ws.send(raw_data)
 
-    def send_message(self, channel_id, text: str, embed=None, stickers=None, files=None):
+    def send_message(self, channel_id, text: str, embed=None, files=None):
         if files is None:
             data = {'content': text}
             if embed is not None:
@@ -256,7 +256,7 @@ class Bot:
     def handle_message_update(self, d):
         if not config.bot.user_audit_log:
             return
-        if len(d['embeds'])>0 and d['embeds'][0]['type'] != 'link':
+        if len(d['embeds'])>0 and d['embeds'][0]['type'] not in ['link', 'article']:
             return
         messages = user_audit_log.search(d['id'])
         if messages:
