@@ -31,6 +31,8 @@ babies_greet:
 verify:
     channel: '874416104653598741' # apresentacoes
     role: '781266952828092474' # beans
+bonk_emoji: # only animated emoji supported
+    - '874285835174948906'
 autoreload: false
 debug: false
 

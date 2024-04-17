@@ -146,7 +146,7 @@ class Bot:
             print('->', raw_data)
         self.ws.send(raw_data)
 
-    def send_message(self, channel_id, text: str, embed=None, files=None):
+    def send_message(self, channel_id, text: str, embed=None, stickers=None, files=None):
         if files is None:
             data = {'content': text}
             if embed is not None:

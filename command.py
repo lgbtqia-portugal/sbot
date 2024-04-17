@@ -1,6 +1,7 @@
-def command(description, *options):
+def command(description, type, *options):
     def wrapped(f):
         f.description = description
+        f.type = type
         f.options = options
         return f
     return wrapped
@@ -17,3 +18,8 @@ class OPTION_TYPE:
     ROLE              = 8
     MENTIONABLE       = 9
     NUMBER            = 10
+
+class CMD_TYPE:
+    CHAT_INPUT = 1
+    USER       = 2
+    MESSAGE    = 3

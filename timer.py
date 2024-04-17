@@ -7,7 +7,7 @@ timer_usage = f'usage: `{config.bot.prefix_char}timer list`, \
     `{config.bot.prefix_char}timer add thing in 1d2h3m`, \
     `{config.bot.prefix_char}timer del thing`'
 
-@command.command('per-channel reminders', {
+@command.command('per-channel reminders', command.CMD_TYPE.CHAT_INPUT, {
     'type': command.OPTION_TYPE.SUB_COMMAND,
     'name': 'list',
     'description': 'list timers for this channel',

@@ -15,6 +15,7 @@ commands = {
     'time': utils.time,
     'weather': utils.weather,
     'color': utils.color,
+    'bonk': utils.bonk,
 
     # management commands
     'can': canned.canned,

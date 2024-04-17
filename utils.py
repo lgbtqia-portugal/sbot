@@ -5,6 +5,7 @@ import struct
 import subprocess
 import sys
 import traceback
+import random
 import urllib.parse
 
 import dateutil.parser
@@ -81,7 +82,7 @@ def unicode(cmd):
 
 temp_re = re.compile(r'\A(-?[0-9 ]*)(C|F)\Z')
 
-@command.command('unit conversions', {
+@command.command('unit conversions', command.CMD_TYPE.CHAT_INPUT, {
     'type': command.OPTION_TYPE.STRING,
     'name': 'from',
     'description': 'what to convert from (74F, 1 USD)',
@@ -118,6 +119,14 @@ def units(cmd):
         cmd.reply(output)
     else:
         cmd.reply('<@!%s>: error running `units`' % cmd.sender['id'])
+
+@command.command('', command.CMD_TYPE.USER)
+def bonk(cmd):
+    if not config.bot.bonk_emoji or cmd.d['type'] != command.CMD_TYPE.USER:
+        return
+    emoji = f"<a:emoji:{random.choice(config.bot.bonk_emoji)}>"
+    cmd.reply(f"<@{cmd.d['data']['target_id']}> {emoji}")
+
 
 def roll(cmd):
     args = cmd.args or '1d6'

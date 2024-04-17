@@ -8,7 +8,7 @@ can_usage = f' usage: `{config.bot.prefix_char}can list`, \
     `{config.bot.prefix_char}can cow`, \
     `{config.bot.prefix_char}can del cow`'
 
-@command.command('canned responses', {
+@command.command('canned responses', command.CMD_TYPE.CHAT_INPUT, {
     'type': command.OPTION_TYPE.SUB_COMMAND,
     'name': 'list',
     'description': 'list canned response names',
