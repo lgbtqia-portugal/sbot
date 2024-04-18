@@ -294,11 +294,13 @@ class Bot:
     def handle_message_delete(self, d):
         if not config.bot.user_audit_log:
             return
-        if 'author' in d and 'bot' in d['author'] and d['author']['bot']: # ignore bot dynamic message edits
-            return
         messages = user_audit_log.search(d['id'])
         reply = ""
         if messages:
+            if 'author' in messages[1]['d'] \
+                    and 'bot' in messages[1]['d']['author'] \
+                    and messages[1]['d']['author']['bot']: # ignore bot dynamic message edits
+                return
             if 'attachments' in messages[1]['d'] and messages[1]['d']['attachments']:
                 filenames = []
                 urls = []
