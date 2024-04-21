@@ -12,10 +12,10 @@ ENV LANG en_US.utf8
 
 #RUN units_cur; exit 0
 
-RUN echo "* * * * * units_cur > ${BOT_DIR}/logs/cron 2>&1" | crontab -u "$(id -un)" -
 
 
 RUN useradd -Um sbot
+RUN echo "* * * * * units_cur > ${BOT_DIR}/logs/cron 2>&1" | crontab -u "$(id -un)" -
 
 USER sbot
 # https://github.com/moby/buildkit/issues/2987
