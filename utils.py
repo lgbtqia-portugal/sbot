@@ -121,8 +121,17 @@ def units(cmd):
         cmd.reply('<@!%s>: error running `units`' % cmd.sender['id'])
 
 @command.command('', command.CMD_TYPE.USER)
+@command.command('', command.CMD_TYPE.MESSAGE)
 def bonk(cmd):
-    if not config.bot.bonk_emoji or cmd.d['type'] != command.CMD_TYPE.USER:
+    if not config.bot.bonk_emoji:
+        return
+    app_cmd_type = cmd.d['data']['type']
+    if app_cmd_type == command.CMD_TYPE.USER:
+        target = cmd.d['data']['target_id']
+    elif app_cmd_type == command.CMD_TYPE.MESSAGE:
+        msg_id =  cmd.d['data']['target_id']
+        target = cmd.d['data']['resolved']['messages'][msg_id]['author']['id']
+    else:
         return
     embed = {
         'title': 'GET BONKED',
@@ -130,7 +139,7 @@ def bonk(cmd):
             'url': random.choice(config.bot.bonk_emoji),
         }
     }
-    cmd.reply(f"<@{cmd.d['data']['target_id']}>", embed=embed)
+    cmd.reply(f"<@{target}>", embed=embed)
 
 
 def roll(cmd):
