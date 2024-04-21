@@ -141,7 +141,6 @@ def bonk(cmd):
     }
     cmd.reply(f"<@{target}>", embed=embed)
 
-
 def roll(cmd):
     args = cmd.args or '1d6'
     response = rs.get('https://rolz.org/api/?' + args) # don't urlencode

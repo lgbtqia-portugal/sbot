@@ -5,6 +5,8 @@ import requests
 import config
 import log
 
+from subprocess import CalledProcessError, run
+
 def join(cmd):
     guild_id, role_id = _ids(cmd)
     if config.bot.roles is None or guild_id != config.bot.roles['server']:
@@ -150,6 +152,16 @@ def listbots(cmd):
             bots.append(f"`{member['user']['id']:<20}`   {member['user']['username']}")
 
     cmd.reply(f'**{len(bots)} bots found**\n' + '\n'.join(bots))
+
+def units_update(cmd):
+    if not any(r in cmd.d['member']['roles'] for r in config.bot.priv_roles):
+        return
+    try:
+        result = run(['units_cur'], check=True, text=True, capture_output=True)
+        output = result.stdout
+    except CalledProcessError as e:
+        output = e
+    cmd.bot.send_message(config.bot.err_channel, str(output))
 
 def _ids(cmd):
     bot = cmd.bot

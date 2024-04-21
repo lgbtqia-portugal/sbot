@@ -23,6 +23,7 @@ commands = {
     'verify': management.verify,
     'massban': management.mass_ban,
     'cleanup': management.cleanup,
+    'units_update': management.units_update,
 
     #'join': management.join,
     #'leave': management.leave,
