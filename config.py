@@ -31,4 +31,5 @@ state = YamlAttrs('config/state.yaml',
     defaults={
         'gateway_url': None,
         'timers': {},
+        'next_cur_update': None,
     })

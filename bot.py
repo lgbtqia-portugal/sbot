@@ -488,17 +488,23 @@ class Bot:
 
 
     def currency_loop(self, interval_d):
-        interval_s = interval_d * 86400
-        time.sleep(5)
         while True:
-            log.write("running units currency update")
-            try:
-                result = run(['units_cur'], check=True, text=True, capture_output=True)
-                output = result.stdout
-            except CalledProcessError as e:
-                output = e
-            self.send_message(config.bot.err_channel, "Executed units currency update: \n" + str(output))
-            time.sleep(interval_s)
+            time.sleep(1)
+            now = datetime.datetime.now(datetime.timezone.utc)
+            if config.state.next_cur_update is None or datetime.datetime.fromisoformat(config.state.next_cur_update) < now:
+                log.write("running units currency update")
+                config.state.next_cur_update = str(now + datetime.timedelta(hours=3))
+                config.state.save()
+                try:
+                    result = run(['units_cur'], check=True, text=True, capture_output=True)
+                    output = result.stout
+                    pass
+                except CalledProcessError as e:
+                    output = result.stderr
+                self.send_message(config.bot.err_channel, "Executed units currency update: \n" + str(output))
+
+
+
 
 class Guild:
     def __init__(self, d):
