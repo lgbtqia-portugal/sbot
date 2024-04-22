@@ -12,7 +12,7 @@ import traceback
 import urllib.parse
 import zlib
 from collections import defaultdict
-from subprocess import CalledProcessError, run
+from subprocess import run
 
 import requests
 import websocket
