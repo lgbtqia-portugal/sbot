@@ -495,13 +495,8 @@ class Bot:
                 log.write("running units currency update")
                 config.state.next_cur_update = str(now + datetime.timedelta(hours=3))
                 config.state.save()
-                try:
-                    result = run(['units_cur'], check=True, text=True, capture_output=True)
-                    output = result.stout
-                    pass
-                except CalledProcessError as e:
-                    output = result.stderr
-                self.send_message(config.bot.err_channel, "Executed units currency update: \n" + str(output))
+                run(['units_cur'], check=True, text=True, capture_output=False)
+                self.send_message(config.bot.err_channel, "Executed units currency update")
 
 
 
