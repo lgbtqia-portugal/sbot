@@ -12,6 +12,7 @@ import traceback
 import urllib.parse
 import zlib
 from collections import defaultdict
+from subprocess import CalledProcessError, run
 
 import requests
 import websocket
@@ -34,6 +35,7 @@ class Bot:
         self.heartbeat_thread = None
         self.timer_thread = None
         self.timer_condvar = threading.Condition()
+        self.currency_thread = None
         self.user_id = None
         self.seq = None
         self.guilds = {} # guild id -> Guild
@@ -83,6 +85,7 @@ class Bot:
         self.ws = websocket.create_connection(url)
 
     def run_forever(self):
+        self.currency_thread = _thread.start_new_thread(self.currency_loop, (7,))
         user_audit_log.setup()
         while True:
             raw_data = self.ws.recv()
@@ -483,6 +486,19 @@ class Bot:
             with self.timer_condvar:
                 self.timer_condvar.wait(wakeup)
 
+
+    def currency_loop(self, interval_d):
+        interval_s = interval_d * 86400
+        time.sleep(5)
+        while True:
+            log.write("running units currency update")
+            try:
+                result = run(['units_cur'], check=True, text=True, capture_output=True)
+                output = result.stdout
+            except CalledProcessError as e:
+                output = e
+            self.send_message(config.bot.err_channel, "Executed units currency update: \n" + str(output))
+            time.sleep(interval_s)
 
 class Guild:
     def __init__(self, d):

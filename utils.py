@@ -120,6 +120,7 @@ def units(cmd):
     else:
         cmd.reply('<@!%s>: error running `units`' % cmd.sender['id'])
 
+
 @command.command('', command.CMD_TYPE.USER)
 @command.command('', command.CMD_TYPE.MESSAGE)
 def bonk(cmd):
