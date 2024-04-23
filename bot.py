@@ -489,16 +489,13 @@ class Bot:
 
     def currency_loop(self, interval_d):
         while True:
-            time.sleep(1)
+            time.sleep(60)
             now = datetime.datetime.now(datetime.timezone.utc)
             if config.state.next_cur_update is None or datetime.datetime.fromisoformat(config.state.next_cur_update) < now:
                 log.write("running units currency update")
-                config.state.next_cur_update = str(now + datetime.timedelta(hours=3))
+                config.state.next_cur_update = str(now + datetime.timedelta(days=7))
                 config.state.save()
-                run(['units_cur'], check=True, text=True, capture_output=False)
-                self.send_message(config.bot.err_channel, "Executed units currency update")
-
-
+                run(['units_cur'], check=True)
 
 
 class Guild:
