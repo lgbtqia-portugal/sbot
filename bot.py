@@ -99,7 +99,8 @@ class Bot:
                 print('<-', raw_data)
             data = json.loads(raw_data)
             self.seq = data['s']
-            if config.bot.user_audit_log and data['t'] in config.bot.user_audit_log['events']:
+            if config.bot.user_audit_log and data['t'] in config.bot.user_audit_log['events'] \
+                and data['d']['channel_id'] not in config.bot.user_audit_log['ignored_channels']:
                 logging.info(json.dumps(data))
             handler = self.handlers.get(data['op'])
             if handler:
@@ -233,7 +234,6 @@ class Bot:
     def handle_message_create(self, d):
         if d['author'].get('bot'):
             return
-
         content = d['content']
         if not content.startswith(config.bot.prefix_char):
             return
