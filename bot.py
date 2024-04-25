@@ -213,18 +213,6 @@ class Bot:
             messages += rs
         return messages
 
-    def get_channel_messages(self, channel_id, backlog_limit=1000):
-        rslimit = 100
-        messages = self.get(f"/channels/{channel_id}/messages", \
-                    {'limit': rslimit})
-        rslen = len(messages)
-        while rslen == rslimit and len(messages) < backlog_limit:
-            rs = self.get(f"/channels/{channel_id}/messages", \
-                    {'limit': rslimit, 'before': messages[-1]['id']})
-            rslen = len(rs)
-            messages += rs
-        return messages
-
     def delete_messages(self, channel_id, message_ids):
         if len(message_ids) == 1:
             path = '/channels/%s/messages/%s' % (channel_id, message_ids[0])
@@ -323,8 +311,6 @@ class Bot:
 
     def handle_message_update(self, d): # TODO wrap audit log operations in its own function for readability
         if not config.bot.user_audit_log or d['channel_id'] in config.bot.user_audit_log['ignored_channels']:
-    def handle_message_update(self, d): # TODO wrap audit log operations in its own function for readability
-        if not config.bot.user_audit_log or d['channel_id'] in config.bot.user_audit_log['ignored_channels']:
             return
         if len(d['embeds'])>0 and d['embeds'][0]['type'] not in ['link', 'article']:
             return
@@ -361,8 +347,6 @@ class Bot:
             self.send_message(config.bot.user_audit_log['channel'], '', embed=embed)
         return
 
-    def handle_message_delete(self, d): # TODO wrap audit log operations in its own function for readability
-        if not config.bot.user_audit_log or d['channel_id'] in config.bot.user_audit_log['ignored_channels']:
     def handle_message_delete(self, d): # TODO wrap audit log operations in its own function for readability
         if not config.bot.user_audit_log or d['channel_id'] in config.bot.user_audit_log['ignored_channels']:
             return
@@ -405,8 +389,6 @@ class Bot:
             self.send_message(config.bot.user_audit_log['channel'], reply, embed=embed)
         return
 
-    def handle_message_delete_bulk(self, d): # TODO wrap audit log operations in its own function for readability
-        if not config.bot.user_audit_log or d['channel_id'] in config.bot.user_audit_log['ignored_channels']:
     def handle_message_delete_bulk(self, d): # TODO wrap audit log operations in its own function for readability
         if not config.bot.user_audit_log or d['channel_id'] in config.bot.user_audit_log['ignored_channels']:
             return
