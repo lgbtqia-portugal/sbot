@@ -32,4 +32,5 @@ state = YamlAttrs('config/state.yaml',
         'gateway_url': None,
         'timers': {},
         'next_cur_update': None,
+        'next_channel_cleanup': None,
     })

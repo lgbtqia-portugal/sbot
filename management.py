@@ -53,20 +53,11 @@ def verify(cmd):
         cmd.bot.send_message(config.bot.err_channel, \
             f"<@{cmd.sender['id']}> usage: `{config.bot.prefix_char}verify all|USER_ID...`")
         return
-    rslimit = 100
-    messages = cmd.bot.get(f"/channels/{config.bot.verify['channel']}/messages", \
-                {'limit': rslimit})
-    rslen = len(messages)
-    while rslen == rslimit:
-        rs = cmd.bot.get(f"/channels/{config.bot.verify['channel']}/messages", \
-                {'limit': rslimit, 'before': messages[-1]['id']})
-        rslen = len(rs)
-        messages += rs
 
+    messages = cmd.bot.get_channel_messages(config.bot.verify['channel'])
     msg_del = []
     verified_users = []
     for msg in messages:
-        print(msg)
         if args[0] == 'all' or msg['author']['id'] in args:
             if msg['author']['id'] not in verified_users:
                 cmd.bot.post(f"/guilds/{cmd.d['guild_id']}/members/{msg['author']['id']}/roles/{config.bot.verify['role']}", \
