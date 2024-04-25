@@ -39,6 +39,9 @@ class Bot:
         self.currency_condvar = threading.Condition()
         self.channel_cleanup_thread = None
         self.channel_cleanup_condvar = threading.Condition()
+        self.currency_condvar = threading.Condition()
+        self.channel_cleanup_thread = None
+        self.channel_cleanup_condvar = threading.Condition()
         self.user_id = None
         self.seq = None
         self.guilds = {} # guild id -> Guild
@@ -88,6 +91,10 @@ class Bot:
         self.ws = websocket.create_connection(url)
 
     def run_forever(self):
+        self.currency_thread = _thread.start_new_thread(self.generic_recurring_loop, \
+            (self.currency_update, self.currency_condvar, 'next_cur_update', 7*24))
+        self.channel_cleanup_thread_thread = _thread.start_new_thread(self.generic_recurring_loop, \
+            (self.channel_cleanup, self.channel_cleanup_condvar, 'next_channel_cleanup', 1*24))
         self.currency_thread = _thread.start_new_thread(self.generic_recurring_loop, \
             (self.currency_update, self.currency_condvar, 'next_cur_update', 7*24))
         self.channel_cleanup_thread_thread = _thread.start_new_thread(self.generic_recurring_loop, \
@@ -142,8 +149,14 @@ class Bot:
         if response.headers.get('X-RateLimit-Remaining') == '0':
             wait_time = int(response.headers['X-RateLimit-Reset-After'])
             log.write(f"waiting {wait_time} for rate limit bucket reset")
+            log.write(f"waiting {wait_time} for rate limit bucket reset")
             time.sleep(wait_time)
         if response.status_code >= 400:
+            log.write(f"response: {response.content}")
+        if response.status_code == 429: # retry when explicitly ratelimited
+            self.post(path, data, files, method)
+        else:
+            response.raise_for_status()
             log.write(f"response: {response.content}")
         if response.status_code == 429: # retry when explicitly ratelimited
             self.post(path, data, files, method)
@@ -200,6 +213,18 @@ class Bot:
             messages += rs
         return messages
 
+    def get_channel_messages(self, channel_id, backlog_limit=1000):
+        rslimit = 100
+        messages = self.get(f"/channels/{channel_id}/messages", \
+                    {'limit': rslimit})
+        rslen = len(messages)
+        while rslen == rslimit and len(messages) < backlog_limit:
+            rs = self.get(f"/channels/{channel_id}/messages", \
+                    {'limit': rslimit, 'before': messages[-1]['id']})
+            rslen = len(rs)
+            messages += rs
+        return messages
+
     def delete_messages(self, channel_id, message_ids):
         if len(message_ids) == 1:
             path = '/channels/%s/messages/%s' % (channel_id, message_ids[0])
@@ -207,6 +232,16 @@ class Bot:
         else:
             path = '/channels/%s/messages/bulk-delete' % channel_id
             for i in range(0, len(message_ids), 100):
+                try:
+                    self.post(path, {'messages': message_ids[i:i+100]})
+                except requests.exceptions.HTTPError as e:
+                    if e.response.json()['code'] == 50034:
+                    #50034 - A message provided was too old to bulk delete
+                        for msg in message_ids[i:i+100]:
+                            self.delete_messages(channel_id, [msg])
+                            time.sleep(1)
+                    else:
+                        raise e
                 try:
                     self.post(path, {'messages': message_ids[i:i+100]})
                 except requests.exceptions.HTTPError as e:
@@ -288,6 +323,8 @@ class Bot:
 
     def handle_message_update(self, d): # TODO wrap audit log operations in its own function for readability
         if not config.bot.user_audit_log or d['channel_id'] in config.bot.user_audit_log['ignored_channels']:
+    def handle_message_update(self, d): # TODO wrap audit log operations in its own function for readability
+        if not config.bot.user_audit_log or d['channel_id'] in config.bot.user_audit_log['ignored_channels']:
             return
         if len(d['embeds'])>0 and d['embeds'][0]['type'] not in ['link', 'article']:
             return
@@ -324,6 +361,8 @@ class Bot:
             self.send_message(config.bot.user_audit_log['channel'], '', embed=embed)
         return
 
+    def handle_message_delete(self, d): # TODO wrap audit log operations in its own function for readability
+        if not config.bot.user_audit_log or d['channel_id'] in config.bot.user_audit_log['ignored_channels']:
     def handle_message_delete(self, d): # TODO wrap audit log operations in its own function for readability
         if not config.bot.user_audit_log or d['channel_id'] in config.bot.user_audit_log['ignored_channels']:
             return
@@ -366,6 +405,8 @@ class Bot:
             self.send_message(config.bot.user_audit_log['channel'], reply, embed=embed)
         return
 
+    def handle_message_delete_bulk(self, d): # TODO wrap audit log operations in its own function for readability
+        if not config.bot.user_audit_log or d['channel_id'] in config.bot.user_audit_log['ignored_channels']:
     def handle_message_delete_bulk(self, d): # TODO wrap audit log operations in its own function for readability
         if not config.bot.user_audit_log or d['channel_id'] in config.bot.user_audit_log['ignored_channels']:
             return
@@ -516,7 +557,7 @@ class Bot:
                 self.timer_condvar.wait(wakeup)
 
     def currency_update(self):
-        #run(['units_cur'], check=True)
+        run(['units_cur'], check=True)
         log.write('completed units currency update')
 
     def channel_cleanup(self):
@@ -539,11 +580,19 @@ class Bot:
     def generic_recurring_loop(self, func, condvar, state_attr, interval_h):
         while True:
             state_var = getattr(config.state, state_attr)
+            state_var = getattr(config.state, state_attr)
             now = datetime.datetime.now(datetime.timezone.utc)
             if state_var is None or datetime.datetime.fromisoformat(state_var) < now:
                 log.write(f"running {func.__name__}")
                 setattr(config.state, state_attr, str(now + datetime.timedelta(hours=interval_h)))
+            if state_var is None or datetime.datetime.fromisoformat(state_var) < now:
+                log.write(f"running {func.__name__}")
+                setattr(config.state, state_attr, str(now + datetime.timedelta(hours=interval_h)))
                 config.state.save()
+                func()
+            with condvar:
+                if state_var:
+                    condvar.wait((datetime.datetime.fromisoformat(state_var) - now).total_seconds())
                 func()
             with condvar:
                 if state_var:
