@@ -1,15 +1,23 @@
 app_id: null
 token: null
 err_channel: null
+prefix_char: '.'
 user_audit_log:
     dir: 'logs'
     file: 'user_audit.log'
-    channel: '1224496998892175440'
+    channel: '1224496998892175440' # blahblah-logs
     events:
         - MESSAGE_CREATE
         - MESSAGE_UPDATE
         - MESSAGE_DELETE
-prefix_char: '.'
+    ignored_channels:
+        - '1222683927786029197' # forum-tests
+        - '1224496998892175440' # blahblah-logs
+        - '1225423409287266324' # blahblah-errors
+        - '1232118968412668045' # rawr voice
+        - '872257927573033010' # geral-staff
+        - '897800130948894740' # bots
+        - '1223735968536727802' # rawr-test
 roles: # set this to null to disable
     server: '' # server id
 priv_roles:
@@ -31,8 +39,14 @@ babies_greet:
 verify:
     channel: '874416104653598741' # apresentacoes
     role: '781266952828092474' # beans
-bonk_emoji: # only animated emoji supported
-    - '874285835174948906'
+bonk_emoji: # URL of emoji to use
+    - 'https://cdn.discordapp.com/emojis/1230255202083274782.gif?size=96&quality=lossless'
+    - 'https://cdn.discordapp.com/emojis/1230255211151364237.gif?size=96&quality=lossless'
+    - 'https://cdn.discordapp.com/emojis/1230255191241003108.gif?size=96&quality=lossless'
+    - 'https://cdn.discordapp.com/emojis/874285835174948906.gif?size=96&quality=lossless'
+cleanup_channels: #channel_id: max_message_age_hours
+    '1224496998892175440': 336 # blahblah-logs
+    '1221236452042739832': 336 # message-logs
 autoreload: false
 debug: false
 
