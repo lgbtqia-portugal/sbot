@@ -291,106 +291,17 @@ class Bot:
                                         cmd.sender['username']
             handler(cmd)
 
-    def handle_message_update(self, d): # TODO wrap audit log operations in its own function for readability
-        if not config.bot.user_audit_log or d['channel_id'] in config.bot.user_audit_log['ignored_channels']:
-            return
-        if len(d['embeds'])>0 and d['embeds'][0]['type'] not in ['link', 'article']:
-            return
-        if 'author' in d and 'bot' in d['author'] and d['author']['bot']: # ignore bot dynamic message edits
-            return
-        messages = user_audit_log.search(d['id'])
-        if messages:
-            new_message = messages[0]['d']
-            if 'content' not in messages[1]['d']:
-                old_message = messages[2]['d']
-            else:
-                old_message = messages[1]['d']
-            embed_rm_msg = ""
-            if len(old_message['embeds']) > 0 and len(new_message['embeds']) == 0:
-                embed_rm_msg = "`[embeds removed]`"
-            if 'content' not in messages[0]['d']: #embed triggered message updates dont have content
-                return
-            embed = {
-                "type": "rich",
-                "title": f"Message edited in <#{d['channel_id']}>",
-                "description": f"### Before:\n{old_message['content']}\n### After:  {embed_rm_msg}\n{new_message['content']}",
-                "color": 0xffce2d,
-                "fields": [
-                    {
-                    "name": "\u200B",
-                    "value": f"Message ID: `{d['id']}`"
-                    },
-                ],
-                "timestamp": f"{datetime.datetime.utcnow().isoformat()}",
-                "author": {
-                    "name": f"{d['author']['username']}",
-                    "icon_url": f"https://cdn.discordapp.com/avatars/{d['author']['id']}/{d['author']['avatar']}.png?size=128"
-                },
-                "footer": {
-                    "text": f"Account ID: {d['author']['id']}"
-                },
-                "url": f"https://discord.com/channels/{d['guild_id']}/{d['channel_id']}/{d['id']}"
-            }
-            self.send_message(config.bot.user_audit_log['channel'], '', embed=embed)
+    def handle_message_update(self, d):
+        self.audit_log_edits(d)
         return
 
-    def handle_message_delete(self, d): # TODO wrap audit log operations in its own function for readability
-        if not config.bot.user_audit_log or d['channel_id'] in config.bot.user_audit_log['ignored_channels']:
-            return
-        messages = user_audit_log.search(d['id'])
-        reply = ""
-        if messages:
-            if 'content' not in messages[1]['d']: # embed edits dont have content, get content from older log
-                old_message = messages[2]['d']
-            else:
-                old_message = messages[1]['d']
-            if 'author' in old_message \
-                    and 'bot' in old_message['author'] \
-                    and old_message['author']['bot']: # ignore bot dynamic message edits
-                return
-            if 'attachments' in old_message and old_message['attachments']:
-                filenames = []
-                urls = []
-                for att in old_message['attachments']:
-                    filenames.append(att['filename'])
-                    urls.append(att['url'])
-                reply = "**Attachments:**\n"
-                reply += "\n".join(urls)
-
-            embed = {
-                "type": "rich",
-                "title": f"Message deleted in <#{d['channel_id']}>",
-                "description": f"{old_message['content']}",
-                "color": 0xf71414,
-                "fields": [
-                    {
-                    "name": "\u200B",
-                    "value": f"Message ID: `{d['id']}`"
-                    },
-                ],
-                "timestamp": f"{datetime.datetime.utcnow().isoformat()}",
-                "author": {
-                    "name": f"{old_message['author']['username']}",
-                    "icon_url": f"https://cdn.discordapp.com/avatars/{old_message['author']['id']}/{old_message['author']['avatar']}.png?size=128"
-                },
-                "footer": {
-                    "text": f"Account ID: {old_message['author']['id']}"
-                },
-            }
-            self.send_message(config.bot.user_audit_log['channel'], reply, embed=embed)
+    def handle_message_delete(self, d):
+        self.audit_log_deletes(d)
         return
 
-    def handle_message_delete_bulk(self, d): # TODO wrap audit log operations in its own function for readability
-        if not config.bot.user_audit_log or d['channel_id'] in config.bot.user_audit_log['ignored_channels']:
-            return
-        embed = {
-            "type": "rich",
-            "title": f"Bulk message delete in <#{d['channel_id']}>",
-            "description": f"`{len(d['ids'])}` messages were deleted",
-            "color": 0xa60063,
-            "timestamp": f"{datetime.datetime.utcnow().isoformat()}",
-        }
-        self.send_message(config.bot.user_audit_log['channel'], '', embed=embed)
+    def handle_message_delete_bulk(self, d):
+        self.audit_log_bulk_deletes(d)
+        return
 
     def handle_interaction_create(self, d):
         if d.get('member', {}).get('user', {}).get('bot'):
@@ -413,16 +324,8 @@ class Bot:
 
     def handle_audit_log_entry_create(self, d):
         if d['action_type'] == 25:
-            self.handle_member_role_update(d)
+            self.member_verify_role_update(d)
         return
-
-    def handle_member_role_update(self, d):
-        if d['changes'][0]['key'] == '$add' and d['changes'][0]['new_value'][0]['id'] == config.bot.verify["role"]:
-            self.send_message(config.bot.babies_greet['greet_channel'], \
-                f'<@{d["target_id"]}> bem-vinde ao servidor <:emoji:{config.bot.babies_greet["greet_emoji"]}> ' \
-                    f'passa pelos <#{config.bot.babies_greet["roles_channel"]}> por favor :>')
-        return
-
 
     def _autoreload(self, command_name, handler):
         module_name = handler.__module__
@@ -498,6 +401,114 @@ class Bot:
                 del roles[role['name']]
                 return True
         return False
+
+    def member_verify_role_update(self, d):
+        if d['changes'][0]['key'] == '$add' and d['changes'][0]['new_value'][0]['id'] == config.bot.verify["role"]:
+            self.send_message(config.bot.babies_greet['greet_channel'], \
+                f'<@{d["target_id"]}> bem-vinde ao servidor <:emoji:{config.bot.babies_greet["greet_emoji"]}> ' \
+                    f'passa pelos <#{config.bot.babies_greet["roles_channel"]}> por favor :>')
+        return
+
+    def audit_log_edits(self, d):
+        '''find and report edited messages using audit log'''
+        if not config.bot.user_audit_log or d['channel_id'] in config.bot.user_audit_log['ignored_channels']:
+            return
+        if len(d['embeds'])>0 and d['embeds'][0]['type'] not in ['link', 'article']:
+            return
+        if 'author' in d and 'bot' in d['author'] and d['author']['bot']: # ignore bot dynamic message edits
+            return
+        messages = user_audit_log.search(d['id'])
+        if messages:
+            new_message = messages[0]['d']
+            if 'content' not in messages[1]['d']:
+                old_message = messages[2]['d']
+            else:
+                old_message = messages[1]['d']
+            embed_rm_msg = ""
+            if len(old_message['embeds']) > 0 and len(new_message['embeds']) == 0:
+                embed_rm_msg = "`[embeds removed]`"
+            if 'content' not in messages[0]['d']: #embed triggered message updates dont have content
+                return
+            embed = {
+                "type": "rich",
+                "title": f"Message edited in <#{d['channel_id']}>",
+                "description": f"### Before:\n{old_message['content']}\n### After:  {embed_rm_msg}\n{new_message['content']}",
+                "color": 0xffce2d,
+                "fields": [
+                    {
+                    "name": "\u200B",
+                    "value": f"Message ID: `{d['id']}`"
+                    },
+                ],
+                "timestamp": f"{datetime.datetime.utcnow().isoformat()}",
+                "author": {
+                    "name": f"{d['author']['username']}",
+                    "icon_url": f"https://cdn.discordapp.com/avatars/{d['author']['id']}/{d['author']['avatar']}.png?size=128"
+                },
+                "footer": {
+                    "text": f"Account ID: {d['author']['id']}"
+                },
+                "url": f"https://discord.com/channels/{d['guild_id']}/{d['channel_id']}/{d['id']}"
+            }
+            self.send_message(config.bot.user_audit_log['channel'], '', embed=embed)
+
+    def audit_log_deletes(self, d):
+        '''find and report deleted messages using audit log'''
+        if not config.bot.user_audit_log or d['channel_id'] in config.bot.user_audit_log['ignored_channels']:
+            return
+        messages = user_audit_log.search(d['id'])
+        reply = ""
+        if messages:
+            if 'content' not in messages[1]['d']: # embed edits dont have content, get content from older log
+                old_message = messages[2]['d']
+            else:
+                old_message = messages[1]['d']
+            if 'author' in old_message \
+                    and 'bot' in old_message['author'] \
+                    and old_message['author']['bot']: # ignore bot dynamic message edits
+                return
+            if 'attachments' in old_message and old_message['attachments']:
+                filenames = []
+                urls = []
+                for att in old_message['attachments']:
+                    filenames.append(att['filename'])
+                    urls.append(att['url'])
+                reply = "**Attachments:**\n"
+                reply += "\n".join(urls)
+
+            embed = {
+                "type": "rich",
+                "title": f"Message deleted in <#{d['channel_id']}>",
+                "description": f"{old_message['content']}",
+                "color": 0xf71414,
+                "fields": [
+                    {
+                    "name": "\u200B",
+                    "value": f"Message ID: `{d['id']}`"
+                    },
+                ],
+                "timestamp": f"{datetime.datetime.utcnow().isoformat()}",
+                "author": {
+                    "name": f"{old_message['author']['username']}",
+                    "icon_url": f"https://cdn.discordapp.com/avatars/{old_message['author']['id']}/{old_message['author']['avatar']}.png?size=128"
+                },
+                "footer": {
+                    "text": f"Account ID: {old_message['author']['id']}"
+                },
+            }
+            self.send_message(config.bot.user_audit_log['channel'], reply, embed=embed)
+
+    def audit_log_bulk_deletes(self, d):
+        if not config.bot.user_audit_log or d['channel_id'] in config.bot.user_audit_log['ignored_channels']:
+            return
+        embed = {
+            "type": "rich",
+            "title": f"Bulk message delete in <#{d['channel_id']}>",
+            "description": f"`{len(d['ids'])}` messages were deleted",
+            "color": 0xa60063,
+            "timestamp": f"{datetime.datetime.utcnow().isoformat()}",
+        }
+        self.send_message(config.bot.user_audit_log['channel'], '', embed=embed)
 
     def heartbeat_loop(self, interval_ms):
         interval_s = interval_ms / 1000
