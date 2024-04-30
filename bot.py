@@ -300,15 +300,20 @@ class Bot:
             return
         messages = user_audit_log.search(d['id'])
         if messages:
+            new_message = messages[0]['d']
+            if 'content' not in messages[1]['d']:
+                old_message = messages[2]['d']
+            else:
+                old_message = messages[1]['d']
             embed_rm_msg = ""
-            if len(messages[1]['d']['embeds']) > 0 and len(messages[0]['d']['embeds']) == 0:
+            if len(old_message['embeds']) > 0 and len(new_message['embeds']) == 0:
                 embed_rm_msg = "`[embeds removed]`"
             if 'content' not in messages[0]['d']: #embed triggered message updates dont have content
                 return
             embed = {
                 "type": "rich",
                 "title": f"Message edited in <#{d['channel_id']}>",
-                "description": f"### Before:\n{messages[1]['d']['content']}\n### After:  {embed_rm_msg}\n{messages[0]['d']['content']}",
+                "description": f"### Before:\n{old_message['content']}\n### After:  {embed_rm_msg}\n{new_message['content']}",
                 "color": 0xffce2d,
                 "fields": [
                     {
@@ -335,14 +340,18 @@ class Bot:
         messages = user_audit_log.search(d['id'])
         reply = ""
         if messages:
-            if 'author' in messages[1]['d'] \
-                    and 'bot' in messages[1]['d']['author'] \
-                    and messages[1]['d']['author']['bot']: # ignore bot dynamic message edits
+            if 'content' not in messages[1]['d']: # embed edits dont have content, get content from older log
+                old_message = messages[2]['d']
+            else:
+                old_message = messages[1]['d']
+            if 'author' in old_message \
+                    and 'bot' in old_message['author'] \
+                    and old_message['author']['bot']: # ignore bot dynamic message edits
                 return
-            if 'attachments' in messages[1]['d'] and messages[1]['d']['attachments']:
+            if 'attachments' in old_message and old_message['attachments']:
                 filenames = []
                 urls = []
-                for att in messages[1]['d']['attachments']:
+                for att in old_message['attachments']:
                     filenames.append(att['filename'])
                     urls.append(att['url'])
                 reply = "**Attachments:**\n"
@@ -351,7 +360,7 @@ class Bot:
             embed = {
                 "type": "rich",
                 "title": f"Message deleted in <#{d['channel_id']}>",
-                "description": f"{messages[1]['d']['content']}",
+                "description": f"{old_message['content']}",
                 "color": 0xf71414,
                 "fields": [
                     {
@@ -361,11 +370,11 @@ class Bot:
                 ],
                 "timestamp": f"{datetime.datetime.utcnow().isoformat()}",
                 "author": {
-                    "name": f"{messages[1]['d']['author']['username']}",
-                    "icon_url": f"https://cdn.discordapp.com/avatars/{messages[1]['d']['author']['id']}/{messages[1]['d']['author']['avatar']}.png?size=128"
+                    "name": f"{old_message['author']['username']}",
+                    "icon_url": f"https://cdn.discordapp.com/avatars/{old_message['author']['id']}/{old_message['author']['avatar']}.png?size=128"
                 },
                 "footer": {
-                    "text": f"Account ID: {messages[1]['d']['author']['id']}"
+                    "text": f"Account ID: {old_message['author']['id']}"
                 },
             }
             self.send_message(config.bot.user_audit_log['channel'], reply, embed=embed)
