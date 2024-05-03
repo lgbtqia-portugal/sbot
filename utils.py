@@ -124,6 +124,9 @@ def units(cmd):
 @command.command('', command.CMD_TYPE.USER)
 @command.command('', command.CMD_TYPE.MESSAGE)
 def bonk(cmd):
+    options = getattr(cmd, 'options', None)
+    if options is None:
+        return
     if not config.bot.bonk_emoji:
         return
     app_cmd_type = cmd.d['data']['type']
