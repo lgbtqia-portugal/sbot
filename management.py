@@ -60,8 +60,14 @@ def verify(cmd):
     for msg in messages:
         if args[0] == 'all' or msg['author']['id'] in args:
             if msg['author']['id'] not in verified_users:
-                cmd.bot.post(f"/guilds/{cmd.d['guild_id']}/members/{msg['author']['id']}/roles/{config.bot.verify['role']}", \
-                    None, method='PUT')  # noqa: E501
+                try:
+                    cmd.bot.post(f"/guilds/{cmd.d['guild_id']}/members/{msg['author']['id']}/roles/{config.bot.verify['role']}", \
+                        None, method='PUT')
+                except requests.exceptions.HTTPError as e:
+                    if e.response.status_code == 404:
+                        cmd.bot.send_message(config.bot.err_channel, "verify: user msg['author']['id] not found")
+                    else:
+                        raise e
                 verified_users.append(msg['author']['id'])
             if not msg['pinned']:
                 msg_del.append(msg['id'])
