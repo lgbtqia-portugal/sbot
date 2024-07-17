@@ -44,6 +44,13 @@ bonk_emoji: # URL of emoji to use
     - 'https://cdn.discordapp.com/emojis/1230255211151364237.gif?size=96&quality=lossless'
     - 'https://cdn.discordapp.com/emojis/1230255191241003108.gif?size=96&quality=lossless'
     - 'https://cdn.discordapp.com/emojis/874285835174948906.gif?size=96&quality=lossless'
+pat_emoji: # URL of emoji to use
+    - 'https://cdn.discordapp.com/emojis/853576846352580628.gif?size=96&quality=lossless'
+    - 'https://cdn.discordapp.com/emojis/829890944932380702.gif?size=96&quality=lossless'
+    - 'https://cdn.discordapp.com/emojis/998700661996785805.gif?size=96&quality=lossless'
+    - 'https://cdn.discordapp.com/emojis/755088073548759100.gif?size=96&quality=lossless'
+    - 'https://cdn.discordapp.com/emojis/1072271035296141413.gif?size=96&quality=lossless'
+    - 'https://cdn.discordapp.com/emojis/441370192639950888.gif?size=96&quality=lossless'
 cleanup_channels: #channel_id: max_message_age_hours
     '1224496998892175440': 336 # blahblah-logs
     '1221236452042739832': 336 # message-logs

@@ -145,6 +145,32 @@ def bonk(cmd):
     }
     cmd.reply(f"<@{target}>", embed=embed)
 
+# TODO: abstract the bonk and pat functions
+
+@command.command('', command.CMD_TYPE.USER)
+@command.command('', command.CMD_TYPE.MESSAGE)
+def pat(cmd):
+    options = getattr(cmd, 'options', None)
+    if options is None:
+        return
+    if not config.bot.pat_emoji:
+        return
+    app_cmd_type = cmd.d['data']['type']
+    if app_cmd_type == command.CMD_TYPE.USER:
+        target = cmd.d['data']['target_id']
+    elif app_cmd_type == command.CMD_TYPE.MESSAGE:
+        msg_id =  cmd.d['data']['target_id']
+        target = cmd.d['data']['resolved']['messages'][msg_id]['author']['id']
+    else:
+        return
+    embed = {
+        'title': 'PAT PAT',
+        'image': {
+            'url': random.choice(config.bot.pat_emoji),
+        }
+    }
+    cmd.reply(f"<@{target}>", embed=embed)
+
 def roll(cmd):
     args = cmd.args or '1d6'
     response = rs.get('https://rolz.org/api/?' + args) # don't urlencode
