@@ -121,7 +121,6 @@ def units(cmd):
         cmd.reply('<@!%s>: error running `units`' % cmd.sender['id'])
 
 
-@command.command('', command.CMD_TYPE.USER)
 @command.command('', command.CMD_TYPE.MESSAGE)
 def bonk(cmd):
     options = getattr(cmd, 'options', None)
@@ -147,7 +146,6 @@ def bonk(cmd):
 
 # TODO: abstract the bonk and pat functions
 
-@command.command('', command.CMD_TYPE.USER)
 @command.command('', command.CMD_TYPE.MESSAGE)
 def pat(cmd):
     options = getattr(cmd, 'options', None)
